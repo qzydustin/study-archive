@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include "syntax-tree.h"
+#include "process_node_count.c"
 
 extern void printSyntaxTree(tnode *t, int n, int depth);
 
@@ -24,4 +25,10 @@ void process_syntax_tree(symtabnode *fn_name, tnode *fn_body) {
   printSyntaxTree(fn_body, 4, 0);
   printf("-----\n");
 #endif
+// syntax tree node count
+  printf("@@FUN: %s\n", fn_name->name);
+  int nodeCount[SyntaxNodeTypeSize] = {0};
+  calculateSyntaxTreeNodeCount(fn_body, nodeCount);
+  printSyntaxTreeNodeCount(nodeCount);
+  
 }
