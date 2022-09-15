@@ -18,6 +18,10 @@ extern symtabnode *currFun;
 
 static symtabnode *SymTab[2][HASHTBLSZ];
 
+symtabnode **globalTab = SymTab[Global];
+
+symtabnode **localTab = SymTab[Local];
+
 static int hash(char *str)
 {
   int n = 0;

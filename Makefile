@@ -14,7 +14,8 @@ CFILES = error.c \
 	symbol-table.c\
         syntax-tree.c \
 	util.c\
-	y.tab.c
+	y.tab.c\
+	three-address-code.c
 
 OFILES = $(CFILES:.c=.o)
 
@@ -35,6 +36,8 @@ syntax-tree.o : global.h syntax-tree.h syntax-tree.c
 util.o : global.h util.h util.c
 
 lex.yy.o : global.h error.h syntax-tree.h symbol-table.h lex.yy.c
+
+three-address-code.o : global.h symbol-table.c three-address-code.c
 
 y.tab.c : parser.y 
 	yacc -d -v parser.y

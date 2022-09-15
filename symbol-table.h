@@ -12,6 +12,8 @@
 
 #include <stdbool.h>
 
+static int tempCounter = 0;
+
 typedef struct stblnode {
   char *name;
   int scope;
@@ -24,6 +26,7 @@ typedef struct stblnode {
   int fn_proto_state;      /* status of prototype definitions for a function */
   bool is_extern;          /* whether or not an ID was declared as an extern */
   struct stblnode *next;
+  int offset;
 } symtabnode;
 
 /*********************************************************************
