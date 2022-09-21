@@ -1,12 +1,7 @@
-#ifndef _THREE_ADDRESS_CODE_H_
-#define _THREE_ADDRESS_CODE_H_
-
 #include "symbol-table.h"
 #include "global.h"
 
-typedef enum operator
-{
-    OpGlobal,
+typedef enum {
     OpEnter,
     OpAssign,
     OpConstInt,
@@ -17,41 +12,44 @@ typedef enum operator
 }
 operator;
 
-typedef struct instr
-{
+typedef struct instr {
     operator op;
-    symtabnode *dest;
-
-    union
-    {
-        struct opMember
-        {
-            symtabnode *src1;
-            symtabnode *src2;
-        } opMember;
-        struct global
-        {
+    union {
+        struct {
+            symtabnode *tmp;
+            int value;
+        } constant;
+        struct {
             char *name;
             int type;
         } global;
-        struct call
-        {
+        struct {
             symtabnode *callee;
             int numOfParams;
         } call;
-        int constant;
+        struct {
+            symtabnode *left;
+            symtabnode *right;
+        } assign;
+        symtabnode *function;
+        symtabnode *param;
     } value;
 
     struct instr *next;
 } instr;
 
-void appendInstructions(instr *instruction);
+extern instr *instrHead;
+extern instr *instrTail;
 
-void *newInstr(operator op, symtabnode *dest, symtabnode *src1, symtabnode *src2);
-void *newConstInstr(operator op, symtabnode *dest, int value);
-void *newGlobalInstr(operator op, char *name, int type);
-void *newCallInstr(symtabnode *callee, int numOfParams);
+void newConstInstr(operator op, symtabnode * tmp, int
+value);
 
-instr *newParamInstr(operator op, symtabnode *src1);
+void newCallInstr(symtabnode *callee, int numOfParams);
 
-#endif
+void newEnterInstr(symtabnode *function);
+
+void newAssignInstr(symtabnode *left, symtabnode *right);
+
+void newReturnInstr();
+
+void newParamInstr(symtabnode *param);

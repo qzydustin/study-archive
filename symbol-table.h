@@ -12,8 +12,6 @@
 
 #include <stdbool.h>
 
-static int tempCounter = 0;
-
 typedef struct stblnode {
   char *name;
   int scope;
