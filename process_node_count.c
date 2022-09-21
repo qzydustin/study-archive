@@ -26,7 +26,6 @@ void calculateSyntaxTreeNodeCount(tnode *t, int *nodeCount)
 
   case Charcon:
     nodeCount[Charcon]++;
-    ;
     break;
 
   case Stringcon:
