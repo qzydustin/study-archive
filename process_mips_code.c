@@ -8,17 +8,58 @@
 extern symtabnode **globalTab;
 extern symtabnode **localTab;
 extern char *currentFuncName;
+extern int returnType;
+
 extern int hasInit;
 extern int tmpVarCount;
+extern int labelCount;
 int isPrintChar = 0;
 
+char *trueLabel = NULL;
+char *falseLabel = NULL;
+
+
 symtabnode *newTmpVar(int type) {
-    char name[10] = "_tmp";
+    char *name = malloc(10 * sizeof(char));
     sprintf(name, "_tmp%d", tmpVarCount);
     tmpVarCount++;
     symtabnode *tmp = SymTabInsert(name, Local);
     tmp->type = type;
     return tmp;
+}
+
+char *newLabelName() {
+    char *name = malloc(10 * sizeof(char));
+    sprintf(name, "L%d", labelCount);
+    labelCount++;
+    return name;
+}
+
+char bOrW(int type) {
+    if (type == t_Char || type == t_Bool) {
+        return 'b';
+    } else {
+        return 'w';
+    }
+}
+
+void read(symtabnode *sym, char *reg) {
+    char c = bOrW(sym->type);
+
+    if (sym->scope == Global) {
+        printf("  l%c %s, _%s \n", c, reg, sym->name);
+    } else {
+        printf("  l%c %s, %d($fp) \n", c, reg, sym->offset);
+    }
+}
+
+void save(symtabnode *sym, char *reg) {
+    char c = bOrW(sym->type);
+    if (sym->scope == Global) {
+        printf("  s%c %s, _%s \n", c, reg, sym->name);
+    } else {
+        printf("  s%c %s, %d($fp) \n", c, reg, sym->offset);
+    }
 }
 
 void generateThreeAddressCode(tnode *t) {
@@ -69,12 +110,21 @@ void generateThreeAddressCode(tnode *t) {
 
             newCallInstr(stFunCall_Fun(t), NumParams);
 
+
+            if (stFunCall_Fun(t)->ret_type != t_None) {
+                tmp = newTmpVar(stFunCall_Fun(t)->ret_type);
+                t->val.strefNode.stptr = tmp;
+                newRetrieveInstr(tmp);
+            }
+
             break;
         }
-
-
         case Return:
-            newReturnInstr();
+            if (stReturn(t)) {
+                generateThreeAddressCode(stReturn(t));
+                t->val.strefNode.stptr = stReturn(t)->val.strefNode.stptr;
+            }
+            newReturnInstr(returnType, t->val.strefNode.stptr);
             break;
 
         case STnodeList:
@@ -82,7 +132,219 @@ void generateThreeAddressCode(tnode *t) {
                 generateThreeAddressCode(stList_Head(tntmp0));
             }
             break;
+        case Stringcon:
+            // TODO milestone 3
+            break;
+        case ArraySubscript:
+            // TODO milestone 3
+            break;
+        case UnaryMinus:
+            generateThreeAddressCode(stUnop_Op(t));
+            tmp = newTmpVar(t->etype);
+            newUnaryInstr(tmp, stUnop_Op(t)->val.strefNode.stptr);
+            t->val.strefNode.stptr = tmp;
+            break;
+        case Plus:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            tmp = newTmpVar(t->etype);
+            newExprInstr(OpPlus, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr, tmp);
+            t->val.strefNode.stptr = tmp;
+            break;
+        case BinaryMinus:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            tmp = newTmpVar(t->etype);
+            newExprInstr(OpBinaryMinus, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr, tmp);
+            t->val.strefNode.stptr = tmp;
+            break;
+        case Mult:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            tmp = newTmpVar(t->etype);
+            newExprInstr(OpMult, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr, tmp);
+            t->val.strefNode.stptr = tmp;
+            break;
+        case Div:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            tmp = newTmpVar(t->etype);
+            newExprInstr(OpDiv, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr, tmp);
+            t->val.strefNode.stptr = tmp;
+            break;
+        case Equals:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpEq, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
 
+            break;
+        case Neq:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpNeq, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
+
+            break;
+        case Leq:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpLeq, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
+
+            break;
+        case Lt:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpLt, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
+
+            break;
+        case Geq:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpGeq, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
+
+            break;
+        case Gt:
+            generateThreeAddressCode(stBinop_Op1(t));
+            generateThreeAddressCode(stBinop_Op2(t));
+            newTrueConditionInstr(OpGt, stBinop_Op1(t)->val.strefNode.stptr, stBinop_Op2(t)->val.strefNode.stptr,
+                                  trueLabel);
+            newGotoInstr(falseLabel);
+
+            break;
+        case LogicalAnd: {
+            char *middleLabel = newLabelName();
+
+            char *tmpLabel = trueLabel;
+            trueLabel = middleLabel;
+            generateThreeAddressCode(stBinop_Op1(t));
+
+            trueLabel = tmpLabel;
+            newLabelInstr(middleLabel);
+            generateThreeAddressCode(stBinop_Op2(t));
+
+            break;
+        }
+        case LogicalOr: {
+            char *middleLabel = newLabelName();
+
+            char *tmpLabel = falseLabel;
+            falseLabel = middleLabel;
+            generateThreeAddressCode(stBinop_Op1(t));
+
+            falseLabel = tmpLabel;
+            newLabelInstr(middleLabel);
+            generateThreeAddressCode(stBinop_Op2(t));
+
+            break;
+        }
+        case LogicalNot: {
+            char *tmpLabel = trueLabel;
+            trueLabel = falseLabel;
+            falseLabel = tmpLabel;
+            generateThreeAddressCode(stUnop_Op(t));
+
+            break;
+        }
+        case For: {
+            char *bodyLabel = newLabelName();
+            char *conditionLabel = newLabelName();
+            char *endLabel = newLabelName();
+
+            // init
+            generateThreeAddressCode(stFor_Init(t));
+
+            newGotoInstr(conditionLabel);
+
+            // body branch
+            newLabelInstr(bodyLabel);
+            generateThreeAddressCode(stFor_Body(t));
+            generateThreeAddressCode(stFor_Update(t));
+
+            // condition branch
+            newLabelInstr(conditionLabel);
+            trueLabel = bodyLabel;
+            falseLabel = endLabel;
+            if (stFor_Test(t)) {
+                generateThreeAddressCode(stFor_Test(t));
+            } else {
+                // without condition, loop forever.
+                newGotoInstr(bodyLabel);
+            }
+
+            // end branch
+            newLabelInstr(endLabel);
+            break;
+
+        }
+        case While: {
+            char *bodyLabel = newLabelName();
+            char *conditionLabel = newLabelName();
+            char *endLabel = newLabelName();
+
+            newGotoInstr(conditionLabel);
+
+            // body branch
+            newLabelInstr(bodyLabel);
+            generateThreeAddressCode(stWhile_Body(t));
+            newGotoInstr(conditionLabel);
+
+            // condition branch
+            newLabelInstr(conditionLabel);
+            trueLabel = bodyLabel;
+            falseLabel = endLabel;
+            generateThreeAddressCode(stWhile_Test(t));
+
+            // end branch
+            newLabelInstr(endLabel);
+
+            break;
+        }
+        case If: {
+            char *thenLabel = newLabelName();
+            char *elseLabel = newLabelName();
+            char *endLabel = newLabelName();
+
+            // has else
+            if (stIf_Else(t)) {
+                falseLabel = elseLabel;
+                trueLabel = thenLabel;
+                generateThreeAddressCode(stIf_Test(t));
+
+                newLabelInstr(thenLabel);
+                generateThreeAddressCode(stIf_Then(t));
+                newGotoInstr(endLabel);
+
+                newLabelInstr(elseLabel);
+                generateThreeAddressCode(stIf_Else(t));
+                newGotoInstr(endLabel);
+
+            } else {
+                // no else
+                falseLabel = endLabel;
+                trueLabel = thenLabel;
+                generateThreeAddressCode(stIf_Test(t));
+
+                newLabelInstr(thenLabel);
+                generateThreeAddressCode(stIf_Then(t));
+                newGotoInstr(endLabel);
+
+            }
+
+            newLabelInstr(endLabel);
+            trueLabel = NULL;
+            falseLabel = NULL;
+
+            break;
+        }
         default:
             break;
     }
@@ -97,13 +359,14 @@ void generateDataSeg() {
                 continue;
             }
             if (stptr->type == t_Int) {
-                printf("%s:.space 4 \n", stptr->name);
+                printf("_%s:.space 4 \n", stptr->name);
             } else if (stptr->type == t_Char) {
-                printf("%s:.space 1 \n", stptr->name);
+                printf("_%s:.space 1 \n", stptr->name);
                 printf(".align 2 \n");
             }
         }
     }
+    printf("\n.text \n");
 }
 
 void generateMipsCode(symtabnode *fn_name) {
@@ -199,13 +462,13 @@ void generateMipsCode(symtabnode *fn_name) {
                 }
 
                 if (right->scope == Global) {
-                    printf("  %s $t0, %s \n", loadInst, right->name);
+                    printf("  %s $t0, _%s \n", loadInst, right->name);
                 } else if (right->scope == Local) {
                     printf("  %s $t0, %d($fp) \n", loadInst, right->offset);
                 }
 
                 if (left->scope == Global) {
-                    printf("  %s $t0, %s \n", saveInst, left->name);
+                    printf("  %s $t0, _%s \n", saveInst, left->name);
                 } else if (left->scope == Local) {
                     printf("  %s $t0, %d($fp) \n", saveInst, left->offset);
                 }
@@ -226,7 +489,7 @@ void generateMipsCode(symtabnode *fn_name) {
                 }
 
                 if (curr_instruction->value.param->scope == Global) {
-                    printf("  %s $t0, %s \n", loadInst, curr_instruction->value.param->name);
+                    printf("  %s $t0, _%s \n", loadInst, curr_instruction->value.param->name);
                 } else {
                     printf("  %s $t0, %d($fp) \n", loadInst, curr_instruction->value.param->offset);
                 }
@@ -251,6 +514,9 @@ void generateMipsCode(symtabnode *fn_name) {
             case OpReturn: {
                 printf("\n");
                 printf("  # OpReturn \n");
+                if (curr_instruction->value.returnStr.returnVar) {
+                    read(curr_instruction->value.returnStr.returnVar, "$v0");
+                }
                 printf("  la $sp, 0($fp) # deallocate locals \n");
                 printf("  lw $ra, 0($sp) # restore return address \n");
                 printf("  lw $fp, 4($sp) # restore frame pointer \n");
@@ -262,7 +528,85 @@ void generateMipsCode(symtabnode *fn_name) {
                 }
                 break;
             }
+            case OpRetrieve:
+                save(curr_instruction->value.retrieve, "$v0");
+                break;
+            case OpUnaryMinus:
+                printf("\n");
+                printf("  # OpUMinus    \n");
+                // Load the content from src1 into $t0
+                read(curr_instruction->value.assign.right, "$t0");
 
+                printf("  neg $t1, $t0 \n");
+                save(curr_instruction->value.assign.left, "$t1");
+                break;
+            case OpPlus:
+                printf("\n");
+                printf("  # OpPlus    \n");
+                read(curr_instruction->value.expr.src1, "$t0");
+                read(curr_instruction->value.expr.src2, "$t1");
+                printf("  add $t2, $t0, $t1 \n");
+                save(curr_instruction->value.expr.dest, "$t2");
+                break;
+            case OpBinaryMinus:
+                printf("\n");
+                printf("  # OpBinaryMinus    \n");
+                read(curr_instruction->value.expr.src1, "$t0");
+                read(curr_instruction->value.expr.src2, "$t1");
+                printf("  sub $t2, $t0, $t1 \n");
+                save(curr_instruction->value.expr.dest, "$t2");
+                break;
+            case OpMult:
+                printf("\n");
+                printf("  # OpMult    \n");
+                read(curr_instruction->value.expr.src1, "$t0");
+                read(curr_instruction->value.expr.src2, "$t1");
+                printf("  mul $t2, $t0, $t1 \n");
+                save(curr_instruction->value.expr.dest, "$t2");
+                break;
+            case OpDiv:
+                printf("\n");
+                printf("  # OpDiv   \n");
+                read(curr_instruction->value.expr.src1, "$t0");
+                read(curr_instruction->value.expr.src2, "$t1");
+                printf("  div $t2, $t0, $t1 \n");
+                save(curr_instruction->value.expr.dest, "$t2");
+                break;
+            case OpLabel:
+                printf("\n");
+                printf("  # opLabel \n");
+                printf("  _%s:       \n", curr_instruction->value.label);
+                break;
+            case OpGoto:
+                printf("\n");
+                printf("  # opGoto \n");
+                printf("  j _%s     \n", curr_instruction->value.gotoLabel);
+                break;
+            case OpIf:
+                printf("\n");
+                printf("  # opIf \n");
+                read(curr_instruction->value.condition.cond1, "$t0");
+                read(curr_instruction->value.condition.cond2, "$t1");
+                switch (curr_instruction->value.condition.logiOp) {
+                    case OpEq:
+                        printf("  beq $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                    case OpNeq:
+                        printf("  bne $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                    case OpLeq:
+                        printf("  ble $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                    case OpLt:
+                        printf("  blt $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                    case OpGeq:
+                        printf("  bge $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                    case OpGt:
+                        printf("  bgt $t0, $t1, _%s \n", curr_instruction->value.condition.trueLabel);
+                        break;
+                }
             default:
                 break;
         }

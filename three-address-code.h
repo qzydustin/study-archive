@@ -8,9 +8,27 @@ typedef enum {
     OpConstChar,
     OpCall,
     OpParam,
-    OpReturn
+    OpRetrieve,
+    OpReturn,
+    OpUnaryMinus,
+    OpPlus,
+    OpBinaryMinus,
+    OpMult,
+    OpDiv,
+    OpGoto,
+    OpIf,
+    OpLabel
 }
 operator;
+
+typedef enum {
+    OpEq,
+    OpNeq,
+    OpLeq,
+    OpLt,
+    OpGeq,
+    OpGt
+} logicalOp;
 
 typedef struct instr {
     operator op;
@@ -31,8 +49,26 @@ typedef struct instr {
             symtabnode *left;
             symtabnode *right;
         } assign;
+        struct {
+            symtabnode *dest;
+            symtabnode *src1;
+            symtabnode *src2;
+        } expr;
+        struct {
+            symtabnode *cond1;
+            symtabnode *cond2;
+            logicalOp logiOp;
+            char *trueLabel;
+        } condition;
+        struct {
+            symtabnode *returnVar;
+            int returnType;
+        } returnStr;
+        char *gotoLabel;
+        char *label;
         symtabnode *function;
         symtabnode *param;
+        symtabnode *retrieve;
     } value;
 
     struct instr *next;
@@ -50,6 +86,18 @@ void newEnterInstr(symtabnode *function);
 
 void newAssignInstr(symtabnode *left, symtabnode *right);
 
-void newReturnInstr();
+void newReturnInstr(int returnType, symtabnode *returnVal);
+
+void newRetrieveInstr(symtabnode *retrieve);
 
 void newParamInstr(symtabnode *param);
+
+void newUnaryInstr(symtabnode *left, symtabnode *right);
+
+void newExprInstr(operator op, symtabnode * src1, symtabnode * src2, symtabnode * dest);
+
+void newGotoInstr(char *label);
+
+void newLabelInstr(char *label);
+
+void newTrueConditionInstr(logicalOp logiOp, symtabnode *cond1, symtabnode *cond2, char *trueLabel);

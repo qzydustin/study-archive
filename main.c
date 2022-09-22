@@ -6,6 +6,7 @@ extern int yyparse();
 
 int status = 0;
 int tmpVarCount = 0;
+int labelCount = 0;
 int hasInit = 0;
 
 int main(void)

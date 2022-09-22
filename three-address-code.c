@@ -25,9 +25,18 @@ void newEnterInstr(symtabnode *function) {
     appendInstruction(instruction);
 }
 
-void newReturnInstr() {
+void newReturnInstr(int returnType, symtabnode *returnVal) {
     instr *instruction = zalloc(sizeof(*instruction));
     instruction->op = OpReturn;
+    instruction->value.returnStr.returnType = returnType;
+    instruction->value.returnStr.returnVar = returnVal;
+    appendInstruction(instruction);
+}
+
+void newRetrieveInstr(symtabnode *retrieve) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpRetrieve;
+    instruction->value.retrieve = retrieve;
     appendInstruction(instruction);
 }
 
@@ -51,5 +60,47 @@ void newCallInstr(symtabnode *callee, int numOfParams) {
     instruction->op = OpCall;
     instruction->value.call.callee = callee;
     instruction->value.call.numOfParams = numOfParams;
+    appendInstruction(instruction);
+}
+
+void newUnaryInstr(symtabnode *left, symtabnode *right) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpUnaryMinus;
+    instruction->value.assign.left = left;
+    instruction->value.assign.right = right;
+    appendInstruction(instruction);
+}
+
+void newExprInstr(operator op, symtabnode *src1, symtabnode *src2, symtabnode *dest) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = op;
+    instruction->value.expr.src1 = src1;
+    instruction->value.expr.src2 = src2;
+    instruction->value.expr.dest = dest;
+    appendInstruction(instruction);
+}
+
+void newGotoInstr(char *label) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpGoto;
+    instruction->value.gotoLabel = label;
+    appendInstruction(instruction);
+}
+
+void newTrueConditionInstr(logicalOp logiOp, symtabnode *cond1, symtabnode *cond2, char *trueLabel) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpIf;
+    instruction->value.condition.cond1 = cond1;
+    instruction->value.condition.cond2 = cond2;
+    instruction->value.condition.logiOp = logiOp;
+    instruction->value.condition.trueLabel = trueLabel;
+
+    appendInstruction(instruction);
+}
+
+void newLabelInstr(char *label) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpLabel;
+    instruction->value.label = label;
     appendInstruction(instruction);
 }
