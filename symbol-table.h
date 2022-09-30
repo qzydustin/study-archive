@@ -25,7 +25,10 @@ typedef struct stblnode {
   bool is_extern;          /* whether or not an ID was declared as an extern */
   struct stblnode *next;
   int offset;
+  char* string;
+
 } symtabnode;
+
 
 /*********************************************************************
  *                                                                   *

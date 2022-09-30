@@ -18,7 +18,6 @@ extern void printSyntaxTree(tnode *t, int n, int depth);
 instr *instrHead = NULL;
 instr *instrTail = NULL;
 char *currentFuncName;
-int returnType;
 
 
 /*
@@ -48,9 +47,8 @@ void process_syntax_tree(symtabnode *fn_name, tnode *fn_body) {
     instrHead = NULL;
     instrTail = NULL;
     currentFuncName = fn_name->name;
-    returnType = fn_name->ret_type;
     newEnterInstr(fn_name);
-    generateThreeAddressCode(fn_body);
+    generateThreeAddressCode(fn_body,0);
     generateMipsCode(fn_name);
 
 }

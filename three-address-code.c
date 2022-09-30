@@ -25,11 +25,10 @@ void newEnterInstr(symtabnode *function) {
     appendInstruction(instruction);
 }
 
-void newReturnInstr(int returnType, symtabnode *returnVal) {
+void newReturnInstr(symtabnode *returnVal) {
     instr *instruction = zalloc(sizeof(*instruction));
     instruction->op = OpReturn;
-    instruction->value.returnStr.returnType = returnType;
-    instruction->value.returnStr.returnVar = returnVal;
+    instruction->value.returnVar = returnVal;
     appendInstruction(instruction);
 }
 
@@ -104,3 +103,22 @@ void newLabelInstr(char *label) {
     instruction->value.label = label;
     appendInstruction(instruction);
 }
+
+void newArrayInstr(symtabnode *arrayName, symtabnode *subscript,symtabnode *arrayAddress) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpArray;
+    instruction->value.array.arr = arrayName;
+    instruction->value.array.subscript = subscript;
+    instruction->value.array.address = arrayAddress;
+    appendInstruction(instruction);
+}
+
+void newDerefInstr(symtabnode *left, symtabnode *right) {
+    instr *instruction = zalloc(sizeof(*instruction));
+    instruction->op = OpDeref;
+    instruction->value.assign.left = left;
+    instruction->value.assign.right = right;
+    appendInstruction(instruction);
+}
+
+

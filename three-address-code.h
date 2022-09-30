@@ -17,7 +17,9 @@ typedef enum {
     OpDiv,
     OpGoto,
     OpIf,
-    OpLabel
+    OpLabel,
+    OpArray,
+    OpDeref
 }
 operator;
 
@@ -61,9 +63,11 @@ typedef struct instr {
             char *trueLabel;
         } condition;
         struct {
-            symtabnode *returnVar;
-            int returnType;
-        } returnStr;
+            symtabnode *arr;
+            symtabnode *subscript;
+            symtabnode *address;
+        }array;
+        symtabnode *returnVar;
         char *gotoLabel;
         char *label;
         symtabnode *function;
@@ -86,7 +90,7 @@ void newEnterInstr(symtabnode *function);
 
 void newAssignInstr(symtabnode *left, symtabnode *right);
 
-void newReturnInstr(int returnType, symtabnode *returnVal);
+void newReturnInstr(symtabnode *returnVal);
 
 void newRetrieveInstr(symtabnode *retrieve);
 
@@ -101,3 +105,8 @@ void newGotoInstr(char *label);
 void newLabelInstr(char *label);
 
 void newTrueConditionInstr(logicalOp logiOp, symtabnode *cond1, symtabnode *cond2, char *trueLabel);
+
+void newArrayInstr(symtabnode *arrayName, symtabnode *subscript,symtabnode *arrayAddress);
+
+void newDerefInstr(symtabnode *left, symtabnode *right);
+
