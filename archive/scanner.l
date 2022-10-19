@@ -16,11 +16,13 @@ char *id_name;
 int ival;
 int linenum = 1;
 %}
+%option nounput
+%option noinput
 
-letter	    [[:alpha:]]
-digit	    [[:digit:]]
-alfa	    [[:alpha:][:digit:]_]
-whitesp	    [[:space:]]
+letter	    [a-zA-Z]
+digit	    [0-9]
+alfa	    [a-zA-Z0-9_]
+whitesp	    [ \t]
 %%
 "/*"			BEGIN(Comment);
 <Comment>[^*\n]*	;
@@ -32,8 +34,8 @@ whitesp	    [[:space:]]
 				linenum);
 			 exit(-1);
 			}
-\n			linenum++;
 {whitesp}*		;
+\n			linenum++;
 {letter}{alfa}*		return(id_or_keywd(yytext));
 {digit}+		{ ival = atoi(yytext); return(INTCON);}
 "'"."'"                	{ ival = yytext[1]; return(CHARCON); }

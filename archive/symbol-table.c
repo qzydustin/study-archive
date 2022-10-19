@@ -18,6 +18,10 @@ extern symtabnode *currFun;
 
 static symtabnode *SymTab[2][HASHTBLSZ];
 
+symtabnode **globalTab = SymTab[Global];
+
+symtabnode **localTab = SymTab[Local];
+
 static int hash(char *str)
 {
   int n = 0;
@@ -194,8 +198,7 @@ symtabnode *SymTabRecordFunInfo(bool isProto)
   func->ret_type = fnRetType;
 
   formal_list_hd = formal_list_tl = NULL;
-  n = 0;
-  
+
   for (ltmp = lptr; ltmp != NULL; ltmp = ltmp->next) {
     if (CurrType == t_None) {
       errmsg("Illegal type [void] for identifier %s", lptr->name);
@@ -221,8 +224,7 @@ symtabnode *SymTabRecordFunInfo(bool isProto)
       formal->formal =   stptr->formal;
       formal->type =     stptr->type;
       formal->elt_type = stptr->elt_type;
-      formal->argpos = stptr->argpos = ++n;
-      
+
       if (formal_list_hd == NULL) {
 	formal_list_hd = formal_list_tl = formal;
       }
@@ -234,7 +236,6 @@ symtabnode *SymTabRecordFunInfo(bool isProto)
   } /* for */
 
   func->formals = formal_list_hd;
-  func->nargs = n;
 
   if (isProto && func->fn_proto_state != FN_DEFINED) {
     func->fn_proto_state = FN_PROTO;
@@ -266,183 +267,6 @@ void CleanupFnInfo(void)
 #endif
   SymTabInit(Local);
 }
-
-/*********************************************************************
- *                                                                   *
- *                          CODE GENERATION                          #
- *                                                                   *
- *********************************************************************/
-
-/*
- * var_width : the no. of bytes occupied by a variable of type t_Char,
- * t_Int, or t_Addr
- */
-int var_width[3] = {1 /* t_Char */,
-		    4 /* t_Int */,
-		    4 /* t_Addr */
-};
-
-
-/*
- * ARG_OFFSET: the offset from $fp, in bytes, of the first argument
- */
-#define ARG_OFFSET  8
-
-/*
- * LOCAL_OFFSET: the offset from $fp, in bytes, of the first local or temp
- */
-#define LOCAL_OFFSET  4
-
-/*
- * space_needed() -- the amount of space (in bytes) occupied by a variable
- */
-int space_needed(symtabnode *sptr) {
-  if (sptr->type == t_Char || sptr->type == t_Int || sptr->type == t_Addr) {
-    return var_width[sptr->type];
-  }
-
-  if (sptr->type == t_Array) {
-    return sptr->num_elts * var_width[sptr->elt_type];
-  }
-
-  errmsg("ERROR [space_needed]: Unrecognized type: %d", sptr->type);
-  exit(1);
-}
-
-
-/*
- * memory_alignment() -- returns the alignment of memory accesses required
- * by a reference to a value of the given symbol.
- */
-static int memory_alignment(symtabnode *sptr) {
-  if (sptr->type == t_Char || sptr->type == t_Int || sptr->type == t_Addr) {
-    return var_width[sptr->type];
-  }
-
-  if (sptr->type == t_Array) {
-    return var_width[sptr->elt_type];
-  }
-
-  return 1;
-}
-
-/*
- * allocate_storage() -- traverses a function's local symbol table and allocates
- * storage locations for each local variable.  The argument stpr is a pointer
- * to the function's global symbol table entry, and is used to store the total
- * size (in bytes) of the space occupied by its locals and temps.  The value 
- * returned is the total amount of space used by the function's locals and temps.
- */
-int allocate_storage(symtabnode *sptr) {
-  symtabnode *stmp;
-  int i, n, sz, stack_frame_size, curr_offset;
-
-  stack_frame_size = 0;
-  curr_offset = 0;
-  
-  for (i = 0; i < HASHTBLSZ; i++) {
-    for (stmp = SymTab[Local][i]; stmp != NULL; stmp = stmp->next) {
-      if (stmp->argpos > 0) {
-	/*
-	 * formal parameter.  Since arrays are passed by reference and we assume
-	 * a 32-bit architecture, the size of an array parameter is the same as
-	 * that of an int
-	 */
-	stmp->offset = ARG_OFFSET + var_width[t_Int] * (stmp->argpos-1);
-      }
-      else {
-	/*
-	 * insert padding if necessary 
-	 */
-	n = memory_alignment(stmp);
-	while (curr_offset % n != 0) {
-	  curr_offset += 1;
-	  stack_frame_size += 1;
-	}
-
-	sz = space_needed(stmp);
-	stmp->offset = -(curr_offset+sz);  /* minus because it has a negative offset from $fp */
-	curr_offset += sz;
-	stack_frame_size += sz;
-      }
-    }
-  }
-  /*
-   * make sure the stack frame size is a multiple of 4
-   */
-  while (stack_frame_size % 4 != 0) {
-    stack_frame_size += 1;
-  }
-
-  return stack_frame_size;
-}
-
-
-/*
- * print_globals() -- print out all the global variables in MIPS asm syntax.
- */
-void print_globals() {
-  symtabnode *sptr;
-  int i, sz;
-
-  printf("\n");
-  printf(".data\n");
-  printf(".align 2\n");
-
-  for (i = 0; i < HASHTBLSZ; i++) {
-    for (sptr = SymTab[Global][i]; sptr != NULL; sptr = sptr->next) {
-      if (sptr->skip_print) {
-	continue;
-      }
-      
-      if (sptr->type == t_Char
-	  || sptr->type == t_Int
-	  || sptr->type == t_Array) {
-	sz = space_needed(sptr);
-	if (sptr->type == t_Int
-	    || (sptr->type == t_Array && sptr->elt_type == t_Int)) {
-	  printf(".align 2\n");
-	}
-	printf("_%s:  .space %d\n", sptr->name, sz);
-      }
-    }
-  }
-
-  printf("\n");
-}
-
-/*
- * dump_fn_info() takes a pointer to the global symbol table entry for a function 
- * and writes out the symbol table information for that function in the form of
- * a MIPS asm comment.
- */
-void dump_fn_info(symtabnode *sptr) {
-  symtabnode *s0, *stmp;
-  int i;
-
-  printf("# function %s\n", sptr->name);
-
-  printf("# formals: ");
-  for (stmp = sptr->formals; stmp; stmp = stmp->next) {
-    char *this_var = stmp->name;
-    s0 = SymTabLookup(this_var, Local);
-    printf("%s (loc: %d); ", this_var, s0->offset);
-  }
-  printf("\n");
-
-  printf("# locals: ");
-  for (i = 0; i < HASHTBLSZ; i++) {
-    for (s0 = SymTab[Local][i]; s0 != NULL; s0 = s0->next) {
-      if (s0->argpos == 0) {
-	printf("%s (loc: %d); ", s0->name, s0->offset);
-      }
-    }
-  }
-  printf("\n");
-  printf("# space for locals: %d bytes\n", sptr->offset);
-  printf("#\n");
-}
-
 
 /*********************************************************************
  *                                                                   *
@@ -498,13 +322,10 @@ void printType(symtabnode *stptr)
 
 void printSTNode(symtabnode *stptr)
 {
-  printf(">> %s: scope = %c; ",
+  printf(">> %s: scope = %c%s; type: ",
 	 stptr->name,
-	 (stptr->scope == Global ? 'G' : 'L'));
-  if (stptr->formal) {
-    printf("<formal param #%d>; ", stptr->argpos);
-  }
-  printf("type: ");
+	 (stptr->scope == Global ? 'G' : 'L'),
+	 (stptr->formal == true ? "<formal param>" : ""));
   printType(stptr);
   printf("\n");
 }

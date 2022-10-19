@@ -19,11 +19,10 @@
 
 #define t_Char   0
 #define t_Int    1
-#define t_Addr   2
-#define t_Bool   3
-#define t_Array  4
-#define t_Func   5
-#define t_None   6
-#define t_Error  7
+#define t_Bool   2
+#define t_Array  3
+#define t_Func   4
+#define t_None   5
+#define t_Error  6
 
 #endif  /* _GLOBAL_H_ */

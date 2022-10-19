@@ -44,7 +44,11 @@ struct stref {  // symbol table reference: subscripted expr or function call
   struct treenode *exp;
 };
 
-struct node {  // statements, unary and binary expressions, and expression lists
+struct expr {  // unary and binary expressions, and expression lists
+  struct treenode *lchild, *rchild;
+};
+
+struct stmt {  // statements
   struct treenode *child0, *child1, *child2, *child3;
 };
 
@@ -57,11 +61,9 @@ typedef struct treenode {
     int iconst;
     char *strconst;
     struct stref strefNode;
-    struct node  Node;
+    struct expr exprNode;
+    struct stmt stmtNode;
   } val;
-  /* ---------- fields for code generation ---------- */
-  symtabnode *place;    /* location where an expression's value will be placed */
-  struct quad *code_hd, *code_tl;    /* three-address instruction list */
 } tnode, *tnptr;
 
 tnode *mkConstNode(SyntaxNodeType ntype, int etype, int n);
@@ -83,15 +85,15 @@ tnode *SynTreeBinExp(SyntaxNodeType ntype, tnode *e1, tnode *e2);
 #define SymTabPtr(x)  (x)->val.strefNode.stptr
 #define ExprPtr(x)    (x)->val.strefNode.exp
 
-#define LChild(x)     (x)->val.Node.child0
-#define RChild(x)     (x)->val.Node.child1
+#define LChild(x)     (x)->val.exprNode.lchild
+#define RChild(x)     (x)->val.exprNode.rchild
 
-#define Child0(x)     (x)->val.Node.child0
-#define Child1(x)     (x)->val.Node.child1
-#define Child2(x)     (x)->val.Node.child2
-#define Child3(x)     (x)->val.Node.child3
+#define Child0(x)     (x)->val.stmtNode.child0
+#define Child1(x)     (x)->val.stmtNode.child1
+#define Child2(x)     (x)->val.stmtNode.child2
+#define Child3(x)     (x)->val.stmtNode.child3
 
-#define ListNode(x)  (x)->val.Node.child0
-#define ListNext(x)  (x)->val.Node.child1
+#define ListNode(x)  (x)->val.exprNode.lchild
+#define ListNext(x)  (x)->val.exprNode.rchild
 
 #endif /* _SYNTAX_TREE_H_ */

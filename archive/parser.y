@@ -15,23 +15,38 @@
 #include "error.h"
 #include "syntax-tree.h"
 #include "symbol-table.h"
-#include "codegen.h"
 
 extern int yylex();
 extern void yyerror();
 
 /*
- * struct treenode *currfnbodyTree is set to point to the syntax tree for 
- * the body of the current function at the end of each function.  
- * NOTE: the syntax tree MUST be used before CleanupFnInfo() is called at 
- * the end of the function.  After that the symbol table entries for the 
- * local variables of the function will go away, leaving dangling pointers
- * from the syntax tree.
+ * The function process_syntax_tree() is defined in the file 
+ * process_syntax_tree.c.  For each function in the input program, 
+ * process_syntax_tree() is called once that function's syntax tree has 
+ * been constructed.  The arguments passed to process_syntrax_tree() 
+ * are (1) a pointer to the global symbol table entry for the function
+ * name; and (2) a pointer to the root of the syntax tree for the function
+ * body.
+ *
+ * Syntax tree processing can be customized by replacing the code for
+ * this function.
  */
+extern void process_syntax_tree(symtabnode *fn_name, struct treenode *fn_body);
+
+  /*
+   * struct treenode *currfnbodyTree is set to point to
+   * the syntax tree for the body of the current function
+   * at the end of each function.  
+   * NOTE: the syntax tree MUST be used before CleanupFnInfo()
+   * is called at the end of the function.  After that the
+   * symbol table entries for the local variables of the
+   * function will go away, leaving dangling pointers from
+   * the syntax tree.
+   */
 struct treenode *currfnbodyTree = NULL;
 
 extern char *id_name, *yytext;
- extern int ival;
+extern int ival;
 extern int linenum;
 char *fnName;
 symtabnode *stptr, *currFun;
@@ -66,42 +81,37 @@ int errstate = 0;
    assignment boolexp expr fun_call proc_call
    variable expr_list;
 
+%nonassoc dangling_else
 %left  AND OR
 %left  '+' '-'
 %left  '*' '/'
-
-%nonassoc IFX
-%nonassoc ELSE
 
 %start     prog
 
 %%
 
 prog 
-  : /* var decl */ type id_list ';' prog
+  : /* var decl */ prog type id_list ';'
   | /* function prototypes */ 
-    type Ident '(' SetFnInfo parm_types ')' fprotRest prog
+    prog type Ident '(' SetFnInfo parm_types ')' fprotRest
   | /* function prototypes */ 
-    Extern type Ident '(' SetFnInfo parm_types ')' fprotRest  prog 
+    prog Extern type Ident '(' SetFnInfo parm_types ')' fprotRest
   | /* function definition */ 
-    type Ident '(' SetFnInfo parm_types  ')' '{' 
+    prog type Ident '(' SetFnInfo parm_types  ')' '{' 
     { currFun = SymTabRecordFunInfo(false);} 
     var_decls stmt_list '}' 
     { 
-      currfnbodyTree = AppendReturn($10);
+      currfnbodyTree = AppendReturn($11);
       /*
        * At this point, currfnbodyTree points to the syntax tree
        * for the body of the current function.  This can then
        * be traversed for code generation etc.
        */
-      gen_code(currfnbodyTree, currFun);
+      process_syntax_tree(currFun, currfnbodyTree);
 
       CleanupFnInfo(); 
     }
-    prog
-
   | /* epsilon */
-    { gen_code_global(); }
   ;
 
 Extern : EXTERN { is_extern = true; }
@@ -203,7 +213,7 @@ stmt_list
   ;
 
 stmt
-  : IF '(' boolexp ')' stmt optional_else {
+: IF '(' boolexp ')' stmt optional_else {
       if ($3->etype != t_Bool && $3->etype != t_Error) {
         errmsg("conditional does not have Boolean type");
       }
@@ -271,8 +281,8 @@ compound_stmt
   ;
 
 optional_else
-  : ELSE stmt  { $$ = $2; }    
-  | { $$ = NULL; } /* epsilon */  %prec IFX
+  : ELSE stmt  { $$ = $2; }
+  | { $$ = NULL; } /* epsilon */
   ;
 
 optional_assgt

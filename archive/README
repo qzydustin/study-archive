@@ -1,6 +1,50 @@
 This directory contains files to create a front end for a
 C-- compiler using flex and yacc.
 
+SOFTWARE ASSUMPTIONS
+====================
+This software has been tested on Ubuntu systems; it may or may not work
+properly on other systems.
+
+To compile and run this code, you need the compiler construction tools
+flex and yacc; the GNU tool bison can be used instead of yacc.  These tools
+are available on lectura.cs.arizona.edu.  If you want to install them on your
+own computer, you can find instructions for doing so at
+
+  https://ccm.net/computing/linux/1711-how-to-install-flex-and-bison-under-ubuntu/
+
+
+BUILDING THE SYSTEM
+===================
+The file 'Makefile' in this directory uses yacc.  If you are using bison
+instead of yacc, use the command 'bison -y' instead of 'yacc' in this
+line in Makefile; see "man bison" for details.
+
+Type "make", this will create an executable named "compile".
+
+
+INVOKING THE PROGRAM
+====================
+The program 'compile' reads from stdin and writes error messages to stderr.
+If compiled with the flag -DDEBUG, syntax trees are printed to stdout.  Other
+than this, syntactically correct input files are accepted silently.
+
+
+SYNTAX TREE PROCESSING
+======================
+The function process_syntax_tree(), defined in the file process_syntax_tree.c,
+can be used to process the syntax tree of each function.  This function is
+called by the parser once the syntax tree for a function has been constructed;
+the arguments passed into it are: (1) a pointer to the global symbol table entry
+for the function name; and (2) a pointer to the root of the syntax tree for the
+function body.
+
+In the code that you start out with, process_syntax_tree() conditionally (if the
+symbol DEBUG is defined at compile time) calls a function to traverse and print
+out the syntax tree it is passed.  You can modify this function and add your own
+code to process syntax trees as desired.
+
+
 FILES:
 =====
 These are the files present initially:
@@ -12,7 +56,9 @@ These are the files present initially:
 		
 		Defining the symbol DEBUG in the variable CFLAGS will
 		cause the syntax tree to be printed out after processing
-		each function.
+		each function.  NOTE: This behavior can (and should) be
+		changed by modifying the function process_syntax_tree()
+		defined in the file process_syntax_tree.c.
 
   main.c	The driver program that calls the parser.
 
@@ -88,17 +134,3 @@ SYNTAX TREES
 Declarations pertaining to syntax trees are in the file syntax-tree.h.
 Components of syntax tree nodes can be accessed via the accessor functions
 whose prototypes are given in protos.h.
-
-
-
-BUILDING THE SYSTEM
-===================
-Type "make", this will create an executable named "compile".
-
-
-
-INVOKING THE PROGRAM
-====================
-This program reads from stdin and writes error messages to stderr.  If
-compiled with the flag -DDEBUG, syntax trees are printed to stdout.  Other
-than this, syntactically correct input files are accepted silently.

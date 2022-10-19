@@ -1,18 +1,21 @@
 CC = gcc
-CFLAGS = -g -DDEBUG 
+#CFLAGS = -g -Wall -DDEBUG
+CFLAGS = -g -Wall
+
 DEST = compile
 
-HFILES = error.h  global.h  protos.h symbol-table.h  syntax-tree.h codegen.h
+HFILES = error.h  global.h  protos.h symbol-table.h  syntax-tree.h
 
 CFILES = error.c \
 	lex.yy.c \
-	main.c \
+	main.c\
 	print.c \
-	symbol-table.c \
+	process_syntax_tree.c \
+	symbol-table.c\
         syntax-tree.c \
-	util.c \
-	codegen.c \
-	y.tab.c
+	util.c\
+	y.tab.c\
+	three-address-code.c
 
 OFILES = $(CFILES:.c=.o)
 
@@ -34,6 +37,8 @@ util.o : global.h util.h util.c
 
 lex.yy.o : global.h error.h syntax-tree.h symbol-table.h lex.yy.c
 
+three-address-code.o : global.h symbol-table.c three-address-code.c
+
 y.tab.c : parser.y 
 	yacc -d -v parser.y
 
@@ -43,8 +48,6 @@ lex.yy.c : y.tab.h scanner.l
 y.tab.h : parser.y
 	yacc -d -v parser.y
 
+.PHONY: clean
 clean :
-	/bin/rm -f *.o core *.BAK *~ $(DEST) y.output
-
-realclean :
-	/bin/rm -f *.o core *.BAK *~ lex.yy.c y.tab.c y.tab.h y.output $(DEST)
+	/bin/rm -f *.o $(DEST) *.BAK lex.yy.c y.tab.* y.output
