@@ -5,9 +5,18 @@ extern int yydebug;
 extern int yyparse();
 
 int status = 0;
+int oLocalFlag=0;
+int oGlobalFlag=0;
 
-int main(void)
+int main(int argc, char *argv[])
 {
+    for (int i = 0; i < argc; i++)
+    {
+        if (strcmp(argv[i], "-Olocal") == 0)
+            oLocalFlag = 1;
+        else if (strcmp(argv[i], "-Oglobal") == 0)
+            oGlobalFlag = 1;
+    }
   SymTabInit(Global);
   SymTabInit(Local);
 
