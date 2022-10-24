@@ -64,7 +64,25 @@ typedef struct quad {
   Op op;
   Operand *src1, *src2, *dst;
   struct quad *next;
+  // to identify whether the quad is the first of the block. (aka leader)
+  bool isLeader;
+  bool isLive;
+  // point to which block the quad belongs to
+  struct block *block;
 } Quad;
+
+typedef struct block
+{
+    int quadNum; // num of quads in each block
+    Quad* leader;
+    char *def;
+    char *use;
+    char *in;
+    char *out;
+    // block may have two next block in graph
+    struct block *next1;
+    struct block *next2;
+} Block;
 
 /********************************* PROTOTYPES *********************************/
 

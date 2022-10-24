@@ -9,6 +9,8 @@
 
 #define Global 0
 #define Local  1
+#define HASHTBLSZ 256
+
 
 typedef struct stblnode {
   char *name;
@@ -32,7 +34,8 @@ typedef struct stblnode {
   bool skip_print;         /* for globals: skip printing the global if set to 1.
                               globals corresponding to string constant labels
                               have this value set to 1 since the string constant
-                              is printed out of the string table. */ 
+                              is printed out of the string table. */
+  int indexBit;             // the index of the variable in the bit vector
   struct stblnode *next;
 } symtabnode;
 

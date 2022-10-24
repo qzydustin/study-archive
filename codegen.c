@@ -146,7 +146,6 @@ static symtabnode *new_temp(int type);
 static Quad *new_label();
 
 // optimize
-//TODO
 static void gen_optimize(tnode *ast);
 
 static void peephole_optimize(Quad *fn_head);
@@ -155,6 +154,27 @@ static void copy_propagate(Quad *fn_head);
 
 static int operands_compare(Operand *a, Operand *b);
 
+static void live_analysis(Quad *fn_head);
+
+int varNum;
+
+static char *newBitVector();
+
+static char *copyBitVector(char *src);
+
+static char *unionBitVector(char *src1, char *src2);
+
+static char *minusBitVector(char *src1, char *src2);
+
+static bool compareBitVector(char *src1, char *src2);
+
+static void calculateDefAndUse(Quad *quad, int quadNum, char *def, char *use);
+
+static void calculateInAndOut(Block *block, bool *isInAndOutChanged);
+
+static void deadCodeEliminate(Quad *quad, int quadNum, char *live, bool *isChanged);
+
+extern symtabnode **localSymbolTable;
 
 /*******************************************************************************
  *                                                                             *
@@ -1536,12 +1556,33 @@ static void print_string_table() {
 
 static void gen_optimize(tnode *ast) {
     Quad *code_hd = ast->code_hd;
-    if (oLocalFlag) {
-        peephole_optimize(code_hd);
-        copy_propagate(code_hd);
-    }
-//    if (oglobal_flag){
-//    }
+
+    int quadNum = 0;
+    int newQuadNum = 0;
+
+    do {
+        quadNum = 0;
+        for (Quad *quad = code_hd; quad != NULL; quad = quad->next) {
+            if (quad->op != NOP) {
+                quadNum++;
+            }
+        }
+        if (oLocalFlag) {
+            peephole_optimize(code_hd);
+            copy_propagate(code_hd);
+        }
+        if (oGlobalFlag) {
+            live_analysis(code_hd);
+        }
+        newQuadNum = 0;
+        for (Quad *quad = code_hd; quad != NULL; quad = quad->next) {
+            if (quad->op != NOP) {
+                newQuadNum++;
+            }
+        }
+    } while (newQuadNum < quadNum);
+
+
 }
 
 static void peephole_optimize(Quad *fn_head) {
@@ -1702,10 +1743,17 @@ static void copy_propagate(Quad *fn_head) {
                     operands_compare(rhs, propagating_curr->dst)) {
                     break;
                 }
-                // type different, continue to look for next
-                if (lhs->val.stptr->type != propagating_curr->dst->val.stptr->type) {
+                // left type > right type, continue to look for next
+                if (lhs->val.stptr->type == t_Int && propagating_curr->dst->val.stptr->type == t_Char) {
                     continue;
                 }
+                if (operands_compare(lhs, propagating_curr->src1)) {
+                    propagating_curr->src1 = rhs;
+                }
+                if (operands_compare(lhs, propagating_curr->src2)) {
+                    propagating_curr->src2 = rhs;
+                }
+            } else {
                 if (operands_compare(lhs, propagating_curr->src1)) {
                     propagating_curr->src1 = rhs;
                 }
@@ -1725,4 +1773,335 @@ static int operands_compare(Operand *a, Operand *b) {
         return !strcmp(a->val.stptr->name, b->val.stptr->name);
     }
     return 0;
+}
+
+static void live_analysis(Quad *fn_head) {
+    for (Quad *curr = fn_head; curr != NULL; curr = curr->next) {
+        curr->isLive = true;
+    }
+
+    // mark all leaders
+    for (Quad *curr = fn_head; curr != NULL; curr = curr->next) {
+        if (curr->op == IF_EQ || curr->op == IF_LE || curr->op == IF_GE ||
+            curr->op == IF_NE || curr->op == IF_LT || curr->op == IF_GT || curr->op == GOTO) {
+            curr->dst->val.insptr->isLeader = true;
+            curr->next->isLeader = true;
+        } else if (curr->op == ENTER) {
+            curr->isLeader = true;
+        }
+    }
+    // get block num
+    int numBlock = 0;
+    for (Quad *currIns = fn_head; currIns != NULL; currIns = currIns->next) {
+        if (currIns->isLeader) {
+            numBlock++;
+        }
+    }
+    // make block
+    Block *blockArray[numBlock];
+    int currblockArrayIndex = 0;
+    Block *currBlock = NULL;
+    for (Quad *currIns = fn_head; currIns != NULL; currIns = currIns->next) {
+        if (currIns->isLeader) {
+            currBlock = zalloc(sizeof(Block));
+            currBlock->quadNum = 1;
+            currBlock->leader = currIns;
+            blockArray[currblockArrayIndex] = currBlock;
+            currblockArrayIndex++;
+        } else {
+            currBlock->quadNum++;
+        }
+        currIns->block = currBlock;
+    }
+    // link blocks
+    for (Quad *currIns = fn_head; currIns != NULL; currIns = currIns->next) {
+        if (currIns->next == NULL || currIns->next->isLeader == false) {
+            continue;
+        }
+        if (currIns->op == IF_EQ || currIns->op == IF_LE || currIns->op == IF_GE ||
+            currIns->op == IF_NE || currIns->op == IF_LT || currIns->op == IF_GT) {
+            currIns->block->next1 = currIns->next->block;
+            currIns->block->next2 = currIns->dst->val.insptr->block;
+        } else if (currIns->op == GOTO) {
+            currIns->block->next1 = currIns->dst->val.insptr->block;
+        } else {
+            currIns->block->next1 = currIns->next->block;
+        }
+    }
+
+//    for (int i = 0; i < numBlock; i++) {
+//        printf("#Debug %d: %d \n", i, blockArray[i]->quadNum);
+//    }
+
+    // count variable numbers
+    varNum = 0;
+    for (int i = 0; i < HASHTBLSZ; i++) {
+        for (symtabnode *stptr = localSymbolTable[i]; stptr != NULL; stptr = stptr->next) {
+            stptr->indexBit = varNum;
+            varNum++;
+        }
+    }
+    if (varNum == 0) {
+        return;
+    }
+
+    // fill def and use
+    for (int i = 0; i < numBlock; i++) {
+        char *def = newBitVector();
+        char *use = newBitVector();
+
+        // calculate out and def (backward)
+        calculateDefAndUse(blockArray[i]->leader, blockArray[i]->quadNum, def, use);
+        blockArray[i]->def = def;
+        blockArray[i]->use = use;
+        blockArray[i]->in = copyBitVector(use);
+        blockArray[i]->out = newBitVector();
+    }
+    bool isDeadCodeFound;
+    bool isInAndOutChanged;
+    do {
+        isDeadCodeFound = false;
+        // fill in and out
+        do {
+            isInAndOutChanged = false;
+            for (int i = 0; i < numBlock; i++) {
+                calculateInAndOut(blockArray[i], &isInAndOutChanged);
+            }
+        } while (isInAndOutChanged);
+
+
+        for (int i = 0; i < numBlock; i++) {
+            deadCodeEliminate(blockArray[i]->leader, blockArray[i]->quadNum, copyBitVector(blockArray[i]->out),
+                              &isDeadCodeFound);
+        }
+
+
+    } while (isDeadCodeFound);
+
+    // remove dead code
+    for (Quad *curr = fn_head; curr != NULL; curr = curr->next) {
+        if (!curr->isLive) {
+            curr->op = NOP;
+        }
+
+    }
+}
+
+
+static char *newBitVector() {
+    char *bv = zalloc(varNum);
+    for (int i = 0; i < varNum; i++)
+        bv[i] = '0';
+    return bv;
+}
+
+static void calculateDefAndUse(Quad *quad, int quadNum, char *def, char *use) {
+    // use recurse to go backward, when only have the linked list
+    if (quadNum == 0) {
+        return;
+    }
+    calculateDefAndUse(quad->next, quadNum - 1, def, use);
+
+    // algorithm
+    bool flagX = false;
+    bool flagY = false;
+    bool flagZ = false;
+
+    switch (quad->op) {
+        case MOVE:
+        case UMINUS_OP:
+            flagX = true;
+            flagY = true;
+            break;
+        case IF_EQ:
+        case IF_NE:
+        case IF_LE:
+        case IF_LT:
+        case IF_GE:
+        case IF_GT:
+            flagY = true;
+            flagZ = true;
+            break;
+        case PARAM:
+        case RET:
+            if (quad->src1 != NULL) {
+                flagY = true;
+            }
+            break;
+        case ADD_OP:
+        case SUB_OP:
+        case MUL_OP:
+        case DIV_OP:
+            flagX = true;
+            flagY = true;
+            flagZ = true;
+            break;
+        default:
+            break;
+    }
+
+    if (flagX == true && quad->dst->val.stptr->scope == Local) {
+        def[quad->dst->val.stptr->indexBit] = '1';
+        use[quad->dst->val.stptr->indexBit] = '0';
+//        printf("#Debug: %d : %s\n",quad->dst->val.stptr->indexBit,quad->dst->val.stptr->name);
+    }
+
+    if (flagY == true && quad->src1->optype != INTEGER && quad->src1->val.stptr->scope == Local) {
+        def[quad->src1->val.stptr->indexBit] = '0';
+        use[quad->src1->val.stptr->indexBit] = '1';
+//        printf("#Debug: %d : %s\n",quad->src1->val.stptr->indexBit,quad->src1->val.stptr->name);
+    }
+    if (flagZ == true && quad->src2->optype != INTEGER && quad->src2->val.stptr->scope == Local) {
+        def[quad->src2->val.stptr->indexBit] = '0';
+        use[quad->src2->val.stptr->indexBit] = '1';
+//        printf("#Debug: %d : %s\n",quad->src2->val.stptr->indexBit,quad->src2->val.stptr->name);
+    }
+}
+
+static void calculateInAndOut(Block *block, bool *isInAndOutChanged) {
+    // use recurse to go backward, when only have the linked list
+//    if (block->next1 == NULL) {
+//        block->in = copyBitVector(block->use);
+//        block->out = newBitVector();
+//        return;
+//    }
+//    calculateInAndOut(block->next1);
+//    if (block->next2 != NULL) {
+//        calculateInAndOut(block->next2);
+//    }
+
+
+    char *oldOut;
+    char *oldIn;
+    bool isInChanged;
+    bool isOutChanged;
+    oldOut = copyBitVector(block->out);
+    oldIn = copyBitVector(block->in);
+    if (block->next1 == NULL) {
+        return;
+    }
+    // out[B] = U { in[X] | X is a successor of B }
+    if (block->next2 != NULL) {
+        block->out = copyBitVector(unionBitVector(block->next1->in, block->next2->in));
+    } else {
+        block->out = copyBitVector(block->next1->in);
+    }
+    // in[B] = use[B] U (out[B] - def[B])
+    block->in = copyBitVector(unionBitVector(block->use, minusBitVector(block->out, block->def)));
+    isOutChanged = !compareBitVector(oldOut, block->out);
+    isInChanged = !compareBitVector(oldIn, block->in);
+    if (isInChanged || isOutChanged) {
+        *isInAndOutChanged = true;
+    }
+}
+
+static void deadCodeEliminate(Quad *quad, int quadNum, char *live, bool *isChanged) {
+    if (quadNum == 0) {
+        return;
+    }
+    deadCodeEliminate(quad->next, quadNum - 1, live, isChanged);
+
+    if (!quad->isLive) {
+        return;
+    }
+
+    // algorithm
+    bool flagX = false;
+    bool flagY = false;
+    bool flagZ = false;
+
+    switch (quad->op) {
+        case MOVE:
+        case UMINUS_OP:
+            flagX = true;
+            flagY = true;
+            break;
+        case IF_EQ:
+        case IF_NE:
+        case IF_LE:
+        case IF_LT:
+        case IF_GE:
+        case IF_GT:
+            flagY = true;
+            flagZ = true;
+            break;
+        case PARAM:
+        case RET:
+            if (quad->src1 != NULL) {
+                flagY = true;
+            }
+            break;
+        case ADD_OP:
+        case SUB_OP:
+        case MUL_OP:
+        case DIV_OP:
+            flagX = true;
+            flagY = true;
+            flagZ = true;
+            break;
+        default:
+            break;
+    }
+
+
+    if (flagX == true && quad->dst->val.stptr->scope == Local && quad->dst->optype == DEREF) {
+        live[quad->dst->val.stptr->indexBit] = '1';
+    }
+    if (flagX == true && quad->dst->val.stptr->scope == Local && live[quad->dst->val.stptr->indexBit] == '0') {
+        quad->isLive = false;
+        *isChanged = true;
+        return;
+    }
+    if (flagX == true && quad->dst->val.stptr->scope == Local && quad->dst->optype != DEREF) {
+        live[quad->dst->val.stptr->indexBit] = '0';
+    }
+    if (flagY == true && quad->src1->optype != INTEGER && quad->src1->val.stptr->scope == Local) {
+        live[quad->src1->val.stptr->indexBit] = '1';
+    }
+    if (flagZ == true && quad->src2->optype != INTEGER && quad->src2->val.stptr->scope == Local) {
+        live[quad->src2->val.stptr->indexBit] = '1';
+    }
+    return;
+}
+
+
+static char *copyBitVector(char *src) {
+    char *dest = newBitVector();
+    for (int i = 0; i < varNum; i++) {
+        dest[i] = src[i];
+    }
+    return dest;
+}
+
+static char *unionBitVector(char *src1, char *src2) {
+    char *dest = newBitVector();
+    for (int i = 0; i < varNum; i++) {
+        if (src1[i] == '1' || src2[i] == '1') {
+            dest[i] = '1';
+        } else {
+            dest[i] = '0';
+        }
+    }
+    return dest;
+}
+
+static char *minusBitVector(char *src1, char *src2) {
+    char *dest = newBitVector();
+    for (int i = 0; i < varNum; i++) {
+        if (src1[i] == '1' && src2[i] == '0') {
+            dest[i] = '1';
+        } else {
+            dest[i] = '0';
+        }
+    }
+    return dest;
+}
+
+static bool compareBitVector(char *src1, char *src2) {
+    for (int i = 0; i < varNum; i++) {
+        if (src1[i] != src2[i]) {
+            return false;
+        }
+    }
+    return true;
 }

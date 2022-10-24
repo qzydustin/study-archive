@@ -14,9 +14,9 @@ extern llistptr lptr;
 extern bool is_extern;
 extern symtabnode *currFun;
 
-#define HASHTBLSZ 256
-
 static symtabnode *SymTab[2][HASHTBLSZ];
+
+symtabnode **localSymbolTable =SymTab[Local];
 
 static int hash(char *str)
 {
