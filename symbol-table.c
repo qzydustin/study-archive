@@ -106,21 +106,23 @@ symtabnode *SymTabInsert(char *str, int sc)
   
   assert(str != 0);
 
-  sptr = SymTabLookup(str, sc);
-  CASSERT(sptr == NULL, ("multiple declarations of %s", str));
+    sptr = SymTabLookup(str, sc);
+    CASSERT(sptr == NULL, ("multiple declarations of %s", str));
 
-  if (sptr != NULL) return sptr;
+    if (sptr != NULL) return sptr;
 
-  hval = hash(str);
-  
-  sptr = (symtabnode *) zalloc(sizeof(symtabnode));
-  sptr->name = str;
-  sptr->scope = sc;
-  
-  sptr->next = SymTab[sc][hval];
-  SymTab[sc][hval] = sptr;
-  
-  return sptr;
+    hval = hash(str);
+
+    sptr = (symtabnode *) zalloc(sizeof(symtabnode));
+    sptr->name = str;
+    sptr->scope = sc;
+    sptr->regName = -1;
+    sptr->cost = 0;
+
+    sptr->next = SymTab[sc][hval];
+    SymTab[sc][hval] = sptr;
+
+    return sptr;
 }
 
 /*
@@ -543,10 +545,24 @@ void DumpSymTabGlobal()
 
 }
 
-void DumpSymTab()
-{
-  DumpSymTabGlobal();
-  DumpSymTabLocal();
+void DumpSymTab() {
+    DumpSymTabGlobal();
+    DumpSymTabLocal();
 }
 
 /*********************************************************************/
+
+
+symtabnode *searchByIndex(int indexBit) {
+    symtabnode *stptr;
+    for (int i = 0; i <= 1; i++) {
+        for (int j = 0; j < HASHTBLSZ; j++) {
+            for (stptr = SymTab[i][j]; stptr != NULL; stptr = stptr->next) {
+                if (indexBit == stptr->indexBit) {
+                    return stptr;
+                }
+            }
+        }
+    }
+    return NULL;
+}

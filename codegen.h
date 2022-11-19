@@ -69,12 +69,13 @@ typedef struct quad {
   bool isLive;
   // point to which block the quad belongs to
   struct block *block;
+    char *livenow;
 } Quad;
 
 typedef struct block
 {
     int quadNum; // num of quads in each block
-    Quad* leader;
+    Quad *leader;
     char *def;
     char *use;
     char *in;
@@ -84,12 +85,26 @@ typedef struct block
     struct block *next2;
 } Block;
 
+
+typedef struct RIG_node {
+    int indexBit;
+    struct RIG_node *next;
+} RIGNode;
+
+typedef struct RIG_edge {
+    int indexBit_a;
+    int indexBit_b;
+    struct RIG_edge *next;
+} RIGEdge;
+
 /********************************* PROTOTYPES *********************************/
 
 void gen_code(tnode *ast, symtabnode *sptr);
+
 void gen_code_global();
 
 void print_3addr_ins(Quad *ins);
+
 void print_3addr_inslist(Quad *inslist);
 
 #endif  /* __CODEGEN_H__ */

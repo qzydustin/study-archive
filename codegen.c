@@ -15,6 +15,7 @@
 
 extern int oLocalFlag;
 extern int oGlobalFlag;
+extern int oRegallocFlag;
 
 
 extern symtabnode *symbol_table[];
@@ -156,7 +157,7 @@ static int operands_compare(Operand *a, Operand *b);
 
 static void live_analysis(Quad *fn_head);
 
-int varNum;
+int indexBitNum;
 
 static char *newBitVector();
 
@@ -175,6 +176,44 @@ static void calculateInAndOut(Block *block, bool *isInAndOutChanged);
 static void deadCodeEliminate(Quad *quad, int quadNum, char *live, bool *isChanged);
 
 extern symtabnode **localSymbolTable;
+
+static void reg_alloc(Quad *fn_head);
+
+static void registerAllocateInBlock(Quad *quad, int quadNum, char *liveNow);
+
+int numBlock;
+Block **blockArray;
+static int NUM_REGS = 5;
+RIGEdge *rigEdgeHead = NULL;
+RIGNode *rigNodeHead = NULL;
+RIGEdge *rigEdgeSavedHead = NULL;
+RIGNode *rigNodeSavedHead = NULL;
+
+static void spillNode();
+
+static int getDegree(int indexBit);
+
+static void removeEdge(int indexBit, bool doSave);
+
+static void addEdgeToSaved(int indexBit_a, int indexBit_b);
+
+static bool isEdgeExistInSaved(int indexBit_a, int indexBit_b);
+
+static void addEdge(int indexBit_a, int indexBit_b);
+
+static RIGEdge *newEdge(int indexBit_a, int indexBit_b);
+
+static void addNodeToSaved(int indexBit);
+
+static void removeNode(int indexBit);
+
+static void addNode(int indexBit);
+
+static RIGNode *newNode(int indexBit);
+
+
+float global_freq = 1;
+
 
 /*******************************************************************************
  *                                                                             *
@@ -203,8 +242,6 @@ static StrTabNode *string_tbl = NULL, *str_tmp;
  * 3-address code to generate MIPS asm code that is written out to stdout.
  */
 void gen_code(tnode *ast, symtabnode *sptr) {
-    printf("# oLocalFlag = %d\n", oLocalFlag);
-    printf("# oGlobalFlag = %d\n", oGlobalFlag);
     curr_fn_symtbl = sptr;
     gen_3addr_code_funcbody(ast);
     gen_optimize(ast);
@@ -377,6 +414,8 @@ static void gen_3addr_code_funcall(tnode *ast) {
         retrieve_instr = new_instr(NOP, NULL, NULL, NULL);
     } else {
         retval = new_temp(t_Int);
+        retval->cost = global_freq;
+        retval->isReturn = true;
         retrieve_instr = new_instr(RETRIEVE, mk_stptr_op(retval), NULL, NULL);
         ast->place = retval;
     }
@@ -412,7 +451,9 @@ static void gen_3addr_code_if(tnode *ast) {
     Child0(ast)->code_tl->next = lbl_then;
 
     if (Child1(ast)) {
+        global_freq *= 0.5;
         gen_3addr_code(Child1(ast));
+        global_freq /= 0.5;
         lbl_then->next = Child1(ast)->code_hd;
         Child1(ast)->code_tl->next = jmp_over;
     } else {
@@ -443,8 +484,10 @@ static void gen_3addr_code_while(tnode *ast) {
 
     br_back = new_instr(GOTO, NULL, NULL, mk_insptr_op(lbl_top));
 
+    global_freq *= 12;
     gen_3addr_code_boolexp(Child0(ast), lbl_body, lbl_after);
     gen_3addr_code(Child1(ast));
+    global_freq /= 12;
 
     ast->code_hd = lbl_top;
     lbl_top->next = Child0(ast)->code_hd;
@@ -491,7 +534,9 @@ static void gen_3addr_code_for(tnode *ast) {
     }
 
     if (for_test != NULL) {
+        global_freq *= 12;
         gen_3addr_code_boolexp(for_test, lbl_body, lbl_after);
+        global_freq /= 12;
         ch1hd = for_test->code_hd;
         ch1tl = for_test->code_tl;
     } else {
@@ -500,7 +545,9 @@ static void gen_3addr_code_for(tnode *ast) {
     }
 
     if (for_upd != NULL) {
+        global_freq *= 12;
         gen_3addr_code(for_upd);
+        global_freq /= 12;
         ch2hd = for_upd->code_hd;
         ch2tl = for_upd->code_tl;
     } else {
@@ -509,7 +556,9 @@ static void gen_3addr_code_for(tnode *ast) {
     }
 
     if (for_body != NULL) {
+        global_freq *= 12;
         gen_3addr_code(for_body);
+        global_freq /= 12;
         ch3hd = for_body->code_hd;
         ch3tl = for_body->code_tl;
     } else {
@@ -573,6 +622,7 @@ static void gen_3addr_code_return(tnode *ast) {
          */
         if (curr_fn_symtbl->ret_type != Child0(ast)->place->type) {
             ret_val = new_temp(curr_fn_symtbl->ret_type);
+            ret_val->cost = global_freq;
             cvt_type = new_instr(MOVE,
                                  mk_stptr_op(Child0(ast)->place),  /* src1 */
                                  NULL,                             /* src2 */
@@ -629,12 +679,14 @@ static void gen_3addr_code_id(tnode *ast) {
 
     ast->code_hd = ast->code_tl = new_instr(NOP, NULL, NULL, NULL);
     ast->place = stVar(ast);
+    ast->place->cost += global_freq;
 }
 
 static void gen_3addr_code_intconst(tnode *ast) {
     assert(ast != NULL && (ast->ntype == Intcon || ast->ntype == Charcon));
 
     symtabnode *lhs = new_temp(t_Int);
+    lhs->cost = global_freq;
     Quad *qptr = new_instr(MOVE,
                            mk_intcon_op(ConstVal(ast)),    /* src1 */
                            NULL,                           /* src2 */
@@ -667,6 +719,7 @@ static void gen_3addr_code_stringcon(tnode *ast) {
      */
     sptr = SymTabInsert(strptr + 1, Global);
     sptr->type = t_Array;
+    sptr->cost = global_freq;
     sptr->elt_type = t_Char;
     sptr->num_elts = strlen(1 + str_tmp->str_lbl);  /* add 1 for the trailing NUL */
     sptr->skip_print = 1;
@@ -690,8 +743,10 @@ static void gen_3addr_code_arraysub(tnode *ast) {
 
     addr_loc = new_temp(t_Addr);
     addr_loc->elt_type = sptr->elt_type;
+    addr_loc->cost = global_freq;
 
     disp_loc = new_temp(t_Int);
+    disp_loc->cost = global_freq;
 
     gen_3addr_code(idx);
     if (idx->ntype == ArraySubscript) {
@@ -739,12 +794,14 @@ static void gen_3addr_code_arithop(tnode *ast) {
     Operand *src1, *src2;
 
     ast->place = new_temp(t_Int);
+    ast->place->cost = global_freq;
     gen_3addr_code(Child0(ast));
     if (Child0(ast)->ntype == ArraySubscript) {
         deref_lvalue(Child0(ast));
     }
 
     src1 = mk_stptr_op(Child0(ast)->place);
+    Child0(ast)->place->cost += global_freq;
 
     if (ast->ntype == UnaryMinus) {
         op = UMINUS_OP;
@@ -757,6 +814,8 @@ static void gen_3addr_code_arithop(tnode *ast) {
         }
 
         src2 = mk_stptr_op(Child1(ast)->place);
+        Child1(ast)->place->cost += global_freq;
+
     }
 
     arith_inst = new_instr(op, src1, src2, mk_stptr_op(ast->place));
@@ -802,6 +861,8 @@ static void gen_3addr_code_boolexp(tnode *ast, Quad *true_lbl, Quad *false_lbl) 
                                    mk_stptr_op(Child1(ast)->place),    /* src1 */
                                    mk_insptr_op(true_lbl)              /* dst */
             );
+            Child0(ast)->place->cost += global_freq;
+            Child1(ast)->place->cost += global_freq;
             Quad *ins2 = new_instr(GOTO, NULL, NULL, mk_insptr_op(false_lbl));
 
             if (Child0(ast)->code_hd != NULL) {
@@ -1008,7 +1069,11 @@ static void gen_mips_move(Quad *qptr) {
         case SYMTBL_PTR:
             switch (stptr->scope) {
                 case Local:
-                    printf("    %s $t0, %d($fp)\t# %s\n", StoreIns[stptr->type], stptr->offset, stptr->name);
+                    if (stptr->regName == -1)
+                        printf("    %s $t0, %d($fp)\t# %s\n", StoreIns[stptr->type], stptr->offset, stptr->name);
+                    else
+                        printf("    move $s%d, $t0 \t# %s\n",
+                               stptr->regName, stptr->name);
                     break;
 
                 case Global:
@@ -1026,7 +1091,10 @@ static void gen_mips_move(Quad *qptr) {
         case DEREF:
             switch (stptr->scope) {
                 case Local:
-                    printf("    lw $t1, %d($fp)\t# %s\n", stptr->offset, stptr->name);
+                    if (stptr->regName == -1)
+                        printf("    lw $t1, %d($fp)\t# %s\n", stptr->offset, stptr->name);
+                    else
+                        printf("    move $t1, $s%d\t# %s\n", stptr->regName, stptr->name);
                     printf("    %s $t0, 0($t1)\t# deref(%s)\n", StoreIns[stptr->elt_type], stptr->name);
                     break;
 
@@ -1136,6 +1204,7 @@ static void gen_mips_label(Quad *qptr) {
 }
 
 static void gen_mips_enter(Quad *qptr) {
+
     symtabnode *sptr = qptr->src1->val.stptr;
 
     printf("    la $sp, -8($sp)    # allocate space for old $fp and $ra\n");
@@ -1143,10 +1212,19 @@ static void gen_mips_enter(Quad *qptr) {
     printf("    sw $ra, 0($sp)     # save old $ra\n");
     printf("    la $fp, 0($sp)     # $fp := $sp\n");
     printf("    la $sp, -%d($sp)   # allocate stack frame\n", sptr->offset);
+
+    printf("    move $t3, $s0\n");
+    printf("    move $t4, $s1\n");
+    printf("    move $t5, $s2\n");
+    printf("    move $t6, $s3\n");
+//    printf("    move $t7, $s4\n");
+//    printf("    move $t8, $s5\n");
+
 }
 
 static void gen_mips_leave(Quad *qptr) {
     /* restore callee-saved registers -- ignore for CSC 453 */
+
 }
 
 static void gen_mips_param(Quad *qptr) {
@@ -1156,6 +1234,7 @@ static void gen_mips_param(Quad *qptr) {
 }
 
 static void gen_mips_call(Quad *qptr) {
+
     printf("    jal _%s\n", (qptr->src1->val).stptr->name);
     printf("    la $sp, %d($sp)\n", 4 * (qptr->src2->val).numval);
 }
@@ -1165,11 +1244,18 @@ static void gen_mips_ret(Quad *qptr) {
         gen_mips_load(qptr->src1, "v", 0);
     }
 
+    printf("    move $s0, $t3 \n");
+    printf("    move $s1, $t4 \n");
+    printf("    move $s2, $t5 \n");
+    printf("    move $s3, $t6 \n");
+//    printf("    move $s4, $t7 \n");
+//    printf("    move $s5, $t8 \n");
     printf("    la $sp, 0($fp)     # deallocate locals\n");
     printf("    lw $ra, 0($sp)     # restore return address\n");
     printf("    lw $fp, 4($sp)     # restore frame pointer\n");
     printf("    la $sp, 8($sp)     # restore stack pointer\n");
     printf("    jr $ra\n");
+
 }
 
 static void gen_mips_retrieve(Quad *qptr) {
@@ -1201,8 +1287,12 @@ static void gen_mips_load(Operand *src, char *reg_prefix, int dstreg) {
                     type = t_Addr;
                 }
 
-                printf("    %s $%s%d, %d($fp)\t# %s\n",
-                       LoadIns[type], reg_prefix, dstreg, sptr->offset, sptr->name);
+                if (sptr->regName == -1)
+                    printf("    %s $%s%d, %d($fp)\t# %s\n",
+                           LoadIns[type], reg_prefix, dstreg, sptr->offset, sptr->name);
+                else
+                    printf("    move $%s%d, $s%d\t# %s\n",
+                           reg_prefix, dstreg, sptr->regName, sptr->name);
             }
             break;
 
@@ -1239,8 +1329,12 @@ static void gen_mips_load(Operand *src, char *reg_prefix, int dstreg) {
                        LoadIns[sptr->elt_type], reg_prefix, dstreg, reg_prefix, dstreg, sptr->name);
             } else {
                 assert(sptr->scope == Local);
-                printf("    lw $%s%d, %d($fp)\t# %s\n",
-                       reg_prefix, dstreg, sptr->offset, sptr->name);
+                if (sptr->regName == -1)
+                    printf("    lw $%s%d, %d($fp)\t# %s\n",
+                           reg_prefix, dstreg, sptr->offset, sptr->name);
+                else
+                    printf("    move $%s%d, $s%d\t# %s\n",
+                           reg_prefix, dstreg, sptr->regName, sptr->name);
                 printf("    %s $%s%d, 0($%s%d)\t# deref(%s)\n",
                        LoadIns[sptr->elt_type], reg_prefix, dstreg, reg_prefix, dstreg, sptr->name);
             }
@@ -1265,8 +1359,13 @@ static void gen_mips_store(Operand *dst, char *reg_prefix, int srcreg) {
                        StoreIns[sptr->type], reg_prefix, srcreg, sptr->name);
             } else {
                 assert(sptr->scope == Local);
-                printf("    %s $%s%d, %d($fp)\t# %s\n",
-                       StoreIns[sptr->type], reg_prefix, srcreg, sptr->offset, sptr->name);
+
+                if (sptr->regName == -1)
+                    printf("    %s $%s%d, %d($fp)\t# %s, %d\n",
+                           StoreIns[sptr->type], reg_prefix, srcreg, sptr->offset, sptr->name, sptr->regName);
+                else
+                    printf("    move $s%d, $%s%d\t# %s\n",
+                           sptr->regName, reg_prefix, srcreg, sptr->name);
             }
             break;
 
@@ -1567,13 +1666,17 @@ static void gen_optimize(tnode *ast) {
                 quadNum++;
             }
         }
+
         if (oLocalFlag) {
             peephole_optimize(code_hd);
             copy_propagate(code_hd);
         }
+
         if (oGlobalFlag) {
             live_analysis(code_hd);
         }
+
+
         newQuadNum = 0;
         for (Quad *quad = code_hd; quad != NULL; quad = quad->next) {
             if (quad->op != NOP) {
@@ -1582,6 +1685,10 @@ static void gen_optimize(tnode *ast) {
         }
     } while (newQuadNum < quadNum);
 
+
+    if (oRegallocFlag) {
+        reg_alloc(code_hd);
+    }
 
 }
 
@@ -1709,7 +1816,6 @@ static void peephole_optimize(Quad *fn_head) {
     }
 }
 
-
 static void copy_propagate(Quad *fn_head) {
     for (Quad *curr = fn_head; curr != NULL; curr = curr->next) {
         if (curr->op != MOVE) {
@@ -1791,14 +1897,14 @@ static void live_analysis(Quad *fn_head) {
         }
     }
     // get block num
-    int numBlock = 0;
+    numBlock = 0;
     for (Quad *currIns = fn_head; currIns != NULL; currIns = currIns->next) {
         if (currIns->isLeader) {
             numBlock++;
         }
     }
+    blockArray = zalloc(numBlock * sizeof(Block));
     // make block
-    Block *blockArray[numBlock];
     int currblockArrayIndex = 0;
     Block *currBlock = NULL;
     for (Quad *currIns = fn_head; currIns != NULL; currIns = currIns->next) {
@@ -1833,15 +1939,15 @@ static void live_analysis(Quad *fn_head) {
 //        printf("#Debug %d: %d \n", i, blockArray[i]->quadNum);
 //    }
 
-    // count variable numbers
-    varNum = 0;
+    // count indexBitiable numbers
+    indexBitNum = 0;
     for (int i = 0; i < HASHTBLSZ; i++) {
         for (symtabnode *stptr = localSymbolTable[i]; stptr != NULL; stptr = stptr->next) {
-            stptr->indexBit = varNum;
-            varNum++;
+            stptr->indexBit = indexBitNum;
+            indexBitNum++;
         }
     }
-    if (varNum == 0) {
+    if (indexBitNum == 0) {
         return;
     }
 
@@ -1887,10 +1993,9 @@ static void live_analysis(Quad *fn_head) {
     }
 }
 
-
 static char *newBitVector() {
-    char *bv = zalloc(varNum);
-    for (int i = 0; i < varNum; i++)
+    char *bv = zalloc(indexBitNum);
+    for (int i = 0; i < indexBitNum; i++)
         bv[i] = '0';
     return bv;
 }
@@ -1959,17 +2064,6 @@ static void calculateDefAndUse(Quad *quad, int quadNum, char *def, char *use) {
 }
 
 static void calculateInAndOut(Block *block, bool *isInAndOutChanged) {
-    // use recurse to go backward, when only have the linked list
-//    if (block->next1 == NULL) {
-//        block->in = copyBitVector(block->use);
-//        block->out = newBitVector();
-//        return;
-//    }
-//    calculateInAndOut(block->next1);
-//    if (block->next2 != NULL) {
-//        calculateInAndOut(block->next2);
-//    }
-
 
     char *oldOut;
     char *oldIn;
@@ -2064,10 +2158,9 @@ static void deadCodeEliminate(Quad *quad, int quadNum, char *live, bool *isChang
     return;
 }
 
-
 static char *copyBitVector(char *src) {
     char *dest = newBitVector();
-    for (int i = 0; i < varNum; i++) {
+    for (int i = 0; i < indexBitNum; i++) {
         dest[i] = src[i];
     }
     return dest;
@@ -2075,7 +2168,7 @@ static char *copyBitVector(char *src) {
 
 static char *unionBitVector(char *src1, char *src2) {
     char *dest = newBitVector();
-    for (int i = 0; i < varNum; i++) {
+    for (int i = 0; i < indexBitNum; i++) {
         if (src1[i] == '1' || src2[i] == '1') {
             dest[i] = '1';
         } else {
@@ -2087,7 +2180,7 @@ static char *unionBitVector(char *src1, char *src2) {
 
 static char *minusBitVector(char *src1, char *src2) {
     char *dest = newBitVector();
-    for (int i = 0; i < varNum; i++) {
+    for (int i = 0; i < indexBitNum; i++) {
         if (src1[i] == '1' && src2[i] == '0') {
             dest[i] = '1';
         } else {
@@ -2098,10 +2191,313 @@ static char *minusBitVector(char *src1, char *src2) {
 }
 
 static bool compareBitVector(char *src1, char *src2) {
-    for (int i = 0; i < varNum; i++) {
+    for (int i = 0; i < indexBitNum; i++) {
         if (src1[i] != src2[i]) {
             return false;
         }
     }
     return true;
+}
+
+
+static void reg_alloc(Quad *fn_head) {
+    live_analysis(fn_head);
+    if (indexBitNum == 0) {
+        return;
+    }
+
+    // construct the interference graph
+    //   (each indexBitiable is its own liverange pointer and such its own vertex)
+    // for each basic block B, traverse backwards
+
+    for (int i = 0; i < numBlock; i++) {
+        registerAllocateInBlock(blockArray[i]->leader, blockArray[i]->quadNum, copyBitVector(blockArray[i]->out));
+    }
+    // make graph
+    for (int i = 0; i < indexBitNum; i++) {
+        addNode(i);
+    }
+
+
+    int count = 0;
+    while (1) {
+        int isContinue = 1;
+        while (isContinue) {
+            isContinue = 0;
+            for (RIGNode *currentNode = rigNodeHead; currentNode != NULL; currentNode = currentNode->next) {
+                int degrees = getDegree(currentNode->indexBit);
+                addNodeToSaved(currentNode->indexBit);
+                removeNode(currentNode->indexBit);
+                removeEdge(currentNode->indexBit, true);
+                isContinue = 1;
+
+            }
+        }
+        if (rigNodeHead == NULL)
+            break;
+        spillNode();
+    }
+
+
+    // color the RIG
+    for (RIGNode *currentNode = rigNodeSavedHead; currentNode != NULL; currentNode = currentNode->next) {
+        symtabnode *indexBit_st = searchByIndex(currentNode->indexBit);
+
+        if (indexBit_st == NULL || indexBit_st->scope != Local ||
+            indexBit_st->type != t_Int ||
+            indexBit_st->formal || indexBit_st->isReturn) {
+            continue;
+        }
+        for (int i = 0; i < NUM_REGS; i++) {
+            int flag = 1;
+            for (RIGNode *node = rigNodeHead; node != NULL; node = node->next) {
+                if (isEdgeExistInSaved(currentNode->indexBit, node->indexBit) &&
+                    searchByIndex(node->indexBit)->regName == i) {
+
+                    flag = 0;
+                    break;
+                }
+            }
+            if (flag) {
+                indexBit_st->regName = i;
+                break;
+            }
+        }
+        addNode(currentNode->indexBit);
+    }
+
+}
+
+static void registerAllocateInBlock(Quad *quad, int quadNum, char *liveNow) {
+    if (quadNum == 0) {
+        return;
+    }
+
+    // forward
+    registerAllocateInBlock(quad->next, quadNum - 1, liveNow);
+
+    if (!quad->isLive)
+        return;
+
+    // algorithm
+    bool flagX = false;
+    bool flagY = false;
+    bool flagZ = false;
+
+
+    switch (quad->op) {
+        case MOVE:
+        case UMINUS_OP:
+            flagX = true;
+            flagY = true;
+            break;
+        case IF_EQ:
+        case IF_NE:
+        case IF_LE:
+        case IF_LT:
+        case IF_GE:
+        case IF_GT:
+            flagY = true;
+            flagZ = true;
+            break;
+        case PARAM:
+        case RET:
+            if (quad->src1 != NULL) {
+                flagY = true;
+            }
+            break;
+        case ADD_OP:
+        case SUB_OP:
+        case MUL_OP:
+        case DIV_OP:
+            flagX = true;
+            flagY = true;
+            flagZ = true;
+            break;
+        default:
+            break;
+    }
+    if (!(flagX && (quad->dst->val.stptr->type == t_Int || quad->dst->val.stptr->type == t_Char))) {
+        flagX = false;
+    }
+    if (!(flagY && quad->src1->optype != INTEGER &&
+          (quad->src1->val.stptr->type == t_Int || quad->src1->val.stptr->type == t_Char))) {
+        flagY = false;
+    }
+    if (!(flagZ && quad->src2->optype != INTEGER &&
+          (quad->src2->val.stptr->type == t_Int || quad->src2->val.stptr->type == t_Char))) {
+        flagZ = false;
+    }
+
+    for (int i = 0; i < indexBitNum; i++) {
+        if (flagX == true && quad->dst->val.stptr->scope != Global && liveNow[i] == '1') {
+            if (quad->dst->val.stptr->indexBit != i) {
+                addEdge(quad->dst->val.stptr->indexBit, i);
+            }
+        }
+    }
+
+    if (flagX == true && quad->dst->val.stptr->scope != Global)
+        liveNow[quad->dst->val.stptr->indexBit] = '0';
+    if (flagY == true && quad->src1->val.stptr->scope != Global)
+        liveNow[quad->src1->val.stptr->indexBit] = '1';
+    if (flagZ == true && quad->src2->val.stptr->scope != Global)
+        liveNow[quad->src2->val.stptr->indexBit] = '1';
+
+    quad->livenow = copyBitVector(liveNow);
+}
+
+
+
+
+
+
+// Register interference graphs
+
+static RIGEdge *newEdge(int indexBit_a, int indexBit_b) {
+    RIGEdge *edge = zalloc(sizeof(RIGEdge));
+    edge->indexBit_a = indexBit_a;
+    edge->indexBit_b = indexBit_b;
+    edge->next = NULL;
+    return edge;
+}
+
+static RIGNode *newNode(int indexBit) {
+    RIGNode *link = zalloc(sizeof(RIGNode));
+    link->indexBit = indexBit;
+    link->next = NULL;
+    return link;
+}
+
+static void addEdge(int indexBit_a, int indexBit_b) {
+    if (rigEdgeHead == NULL) {
+        rigEdgeHead = newEdge(indexBit_a, indexBit_b);
+    } else {
+        RIGEdge *edge = rigEdgeHead;
+        while (edge->next != NULL) {
+            // if the edge exist
+            if (edge->indexBit_a == indexBit_a && edge->indexBit_b == indexBit_b ||
+                edge->indexBit_a == indexBit_b && edge->indexBit_b == indexBit_a) {
+                return;
+            }
+            edge = edge->next;
+        }
+        edge->next = newEdge(indexBit_a, indexBit_b);
+    }
+}
+
+
+static int getDegree(int indexBit) {
+    int degrees = 0;
+    RIGEdge *edge = rigEdgeHead;
+    while (edge != NULL && edge->next != NULL) {
+        if (edge->indexBit_a == indexBit || edge->indexBit_b == indexBit)
+            degrees++;
+        edge = edge->next;
+    }
+    return degrees;
+}
+
+static void addNode(int indexBit) {
+    if (rigNodeHead == NULL)
+        rigNodeHead = newNode(indexBit);
+    else {
+        RIGNode *tmp = newNode(indexBit);
+        tmp->next = rigNodeHead;
+        rigNodeHead = tmp;
+    }
+}
+
+static void addNodeToSaved(int indexBit) {
+    if (rigNodeSavedHead == NULL)
+        rigNodeSavedHead = newNode(indexBit);
+    else {
+        RIGNode *tmp = newNode(indexBit);
+        tmp->next = rigNodeSavedHead;
+        rigNodeSavedHead = tmp;
+    }
+}
+
+static void removeNode(int indexBit) {
+    RIGNode *currentNode = rigNodeHead;
+    RIGNode *prevNode = NULL;
+    while (currentNode != NULL) {
+        if (currentNode->indexBit == indexBit) {
+            if (prevNode != NULL) {
+                prevNode->next = currentNode->next;
+            } else {
+                // to be removed node is the first node.
+                rigNodeHead = currentNode->next;
+            }
+        }
+        prevNode = currentNode;
+        currentNode = currentNode->next;
+    }
+}
+
+static void removeEdge(int indexBit, bool doSave) {
+    RIGEdge *current = rigEdgeHead;
+    RIGEdge *prev = NULL;
+    while (current != NULL) {
+        if (current->indexBit_a == indexBit || current->indexBit_b == indexBit) {
+            if (doSave) {
+                addEdgeToSaved(current->indexBit_a, current->indexBit_b);
+            }
+            if (prev != NULL)
+                prev->next = current->next;
+            else
+                rigEdgeHead = current->next;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+static void addEdgeToSaved(int indexBit_a, int indexBit_b) {
+    if (rigEdgeSavedHead == NULL) {
+        rigEdgeSavedHead = newEdge(indexBit_a, indexBit_b);
+
+    } else {
+        RIGEdge *current = rigEdgeSavedHead;
+        while (current->next != NULL) {
+            if (current->indexBit_a == indexBit_a && current->indexBit_b == indexBit_b ||
+                current->indexBit_a == indexBit_b && current->indexBit_b == indexBit_a) {
+                //exist
+                return;
+            }
+            current = current->next;
+        }
+        current->next = newEdge(indexBit_a, indexBit_b);
+    }
+}
+
+static void spillNode() {
+    int targetIndexBit = rigNodeHead->indexBit;
+    double lowest = searchByIndex(targetIndexBit)->cost / getDegree(targetIndexBit);
+
+    RIGNode *current_node = rigNodeHead->next;
+    while (current_node != NULL) {
+        double degree = getDegree(current_node->indexBit);
+        symtabnode *current_st = searchByIndex(current_node->indexBit);
+        if ((current_st->cost / degree) < lowest) {
+            // update lowest
+            targetIndexBit = current_node->indexBit;
+            lowest = current_st->cost / degree;
+        }
+        current_node = current_node->next;
+    }
+    removeEdge(targetIndexBit, false);
+    removeNode(targetIndexBit);
+}
+
+static bool isEdgeExistInSaved(int indexBit_a, int indexBit_b) {
+    RIGEdge *edge = rigEdgeSavedHead;
+    while (edge != NULL) {
+        if (edge->indexBit_a == indexBit_a && edge->indexBit_b == indexBit_b ||
+            edge->indexBit_a == indexBit_b && edge->indexBit_b == indexBit_a) {
+            return true;
+        }
+        edge = edge->next;
+    }
+    return false;
 }

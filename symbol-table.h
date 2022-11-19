@@ -29,14 +29,17 @@ typedef struct stblnode {
                               this is its stack frame offset;
                               if it is a global function, it is the function's
                               stack frame size. */
-  int fn_proto_state;      /* status of prototype definitions for a function */
-  bool is_extern;          /* whether or not an ID was declared as an extern */
-  bool skip_print;         /* for globals: skip printing the global if set to 1.
+    int fn_proto_state;      /* status of prototype definitions for a function */
+    bool is_extern;          /* whether or not an ID was declared as an extern */
+    bool skip_print;         /* for globals: skip printing the global if set to 1.
                               globals corresponding to string constant labels
                               have this value set to 1 since the string constant
                               is printed out of the string table. */
-  int indexBit;             // the index of the variable in the bit vector
-  struct stblnode *next;
+    int indexBit;             // the index of the variable in the bit vector
+    double cost;                 //the cost of using a reg
+    int regName;              //the num of the register ($s_)
+    bool isReturn;
+    struct stblnode *next;
 } symtabnode;
 
 /*********************************************************************
@@ -55,15 +58,23 @@ void CleanupFnInfo(void);
  * Code generation functions
  */
 int allocate_storage(symtabnode *sptr);
+
 void print_globals();
+
 void dump_fn_info(symtabnode *sptr);
+
 /*
  * Defugging functions
  */
 void printSTNode(symtabnode *stptr);
+
 void DumpSymTabLocal();
+
 void DumpSymTabGlobal();
+
 void DumpSymTab();
+
+symtabnode *searchByIndex(int indexBit);
 
 /*********************************************************************
  *                                                                   *
