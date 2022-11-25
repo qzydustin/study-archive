@@ -2206,10 +2206,6 @@ static void reg_alloc(Quad *fn_head) {
         return;
     }
 
-    // construct the interference graph
-    //   (each indexBitiable is its own liverange pointer and such its own vertex)
-    // for each basic block B, traverse backwards
-
     for (int i = 0; i < numBlock; i++) {
         registerAllocateInBlock(blockArray[i]->leader, blockArray[i]->quadNum, copyBitVector(blockArray[i]->out));
     }
