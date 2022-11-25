@@ -1,0 +1,13 @@
+/* assigning to a local char variable */
+
+extern void println(int x);
+
+void main(void) {
+    char x;
+
+    x = 1;
+    println(x);
+
+    x = 255;
+    println(x);    /* << this should print -1 */
+}

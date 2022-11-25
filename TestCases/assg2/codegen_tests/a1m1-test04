@@ -1,0 +1,10 @@
+/* assignment to a global + call to println() */
+
+extern void println(int x);
+
+int x;
+
+void main(void) {
+    x = 12345;
+    println(x);
+}

@@ -1,0 +1,39 @@
+/*
+ * regalloc-14: register allocation and char variables
+ *
+ * This program tests correctness of register allocation for frequently referenced
+ * variables of type char
+ */
+
+extern void println(int x);
+
+int g(int n) {
+    char m;
+    int i, j, k, x;
+
+    /* lots of references to m, which is of type char; will it be put into a register? */
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+
+    x = n+m;
+    for (i = 0; i < 10; i = i+1) {
+        for (j = 0; j < 10; j = j+1) {
+            for (k = 0; k < 10; k = k+1) {
+	        x = x+1;
+	    }
+	}
+    }
+
+    return x;
+}
+
+
+void main(void) {
+    int x;
+    
+    x = g(252);
+    println(x);
+}

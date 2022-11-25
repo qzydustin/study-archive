@@ -1,0 +1,14 @@
+/* argument passing: global char variable to argument of type char */
+
+extern void println(int x);
+
+char x;
+
+void f(char x) {
+    println(x);
+}
+
+void main(void) {
+    x = 17;
+    f(x);
+}

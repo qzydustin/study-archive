@@ -1,0 +1,40 @@
+/*
+ * File: globalopt-05
+ * Tests: dead code elimination involving multiple IF statements
+ *
+ * All the assignments to y are dead
+ *
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y;
+
+    x = 12;
+    y = 21;
+    
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+    if (x > 0) {y = x + 2*y; x = x + 1; } else { y = 3*x - 2; }
+
+    println(x);
+}
+

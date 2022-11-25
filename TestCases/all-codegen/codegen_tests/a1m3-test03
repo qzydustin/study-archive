@@ -1,0 +1,14 @@
+/* assignment to a single global array */
+
+int x[10];
+
+extern void println (int n);
+
+void main(void)
+{
+  int y;
+
+  x[7] = 3142;
+  y = x[7];
+  println(y);
+}

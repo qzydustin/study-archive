@@ -1,0 +1,14 @@
+/* argument passing: mix of int and char arguments */
+
+extern void println(int x);
+
+void f(int u, char v, int w, char x) {
+    println(v);
+    println(u);
+    println(x);
+    println(w);
+}
+
+void main(void) {
+    f(12345, ' ', 98765, '?');
+}

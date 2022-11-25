@@ -1,0 +1,25 @@
+/* more complex while loops */
+
+int x, res;
+
+extern void println (int n);
+
+void main(void)
+{
+  char i;
+  
+  i = 0;
+  x = 0;
+  res = 123;
+  while (i < 5) {
+    x = x + i;
+    i = i+1;
+  }
+  res = 123;
+  while (x > 3 || i > 0) {
+    i = i - 1;
+    x = x - 1;
+    res = (res * 3)/2;
+    println(res);
+  }
+}

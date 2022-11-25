@@ -1,0 +1,38 @@
+/*
+ * File: globalopt-10
+ * Tests: dead code elimination involving WHILE loops containing
+ *        IF and FOR statements
+ *
+ * All the assignments to y are dead
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y, i;
+
+    x = 0;
+    while (x < 100) {
+        y = 0;
+        if (x > 0) {
+            y = 2*y + 1;
+	    y = 2*y + 1;
+	}
+	else {
+	    y = 2*y - 1;
+	    y = 2*y / 3;
+	}
+        y = 2*y + 1;
+
+        for (i = 0; i < 10; i = i+1) {
+	    y = 21;
+            y = 2*y + 1;
+            y = 2*y + 1;
+	}
+	
+	x = x+1;
+    }
+
+    println(x);  
+}
+

@@ -1,0 +1,28 @@
+/* several assignments to several local arrays */
+
+extern void println (int n);
+
+void main(void)
+{
+  int x[10], y[10];
+  int u;
+
+  x[4] = 1111;
+  x[5] = 2222;
+  x[6] = 3333;
+  y[7] = 4444;
+  y[8] = 5555;
+  y[9] = 6666;
+  u = x[4];
+  println(u);
+  u = x[5];
+  println(u);
+  u = x[6];
+  println(u);
+  u = y[7];
+  println(u);
+  u = y[8];
+  println(u);
+  u = y[9];
+  println(u);
+}

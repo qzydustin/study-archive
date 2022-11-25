@@ -1,0 +1,7 @@
+/* a simple call to println() */
+
+extern void println(int x);
+
+void main(void) {
+    println(12345);
+}

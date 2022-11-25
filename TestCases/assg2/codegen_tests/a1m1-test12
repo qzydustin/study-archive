@@ -1,0 +1,20 @@
+/* mixed assignments to global int and char variables */
+
+extern void println(int x);
+
+int u, v;
+char x, y;
+
+void main(void) {
+    x = 17;
+    u = x;
+    y = u;
+    v = y;
+    println(v);
+
+    u = 255;
+    x = u;
+    v = x;
+    y = v;
+    println(y);
+}

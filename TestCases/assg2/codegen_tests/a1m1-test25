@@ -1,0 +1,22 @@
+/* argument passing chain: local char variable to argument of type char */
+
+extern void println(int x);
+
+void h(char w) {
+    println(w);
+}
+
+void g(char u) {
+    h(u);
+}
+
+void f(char v) {
+    g(v);
+}
+
+void main(void) {
+    char x;
+
+    x = 'a';
+    f(x);
+}

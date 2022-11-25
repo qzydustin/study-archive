@@ -1,0 +1,37 @@
+/*
+ * regalloc-10: register allocation for variables inside loops
+ *
+ * This program tests spill cost estimation heuristics.  Similar to regalloc10
+ * except this program uses while loops.
+ */
+
+extern void println(int x);
+
+void main(void) {
+  int x01, x02, x03, x04, x05, x06, x07, x08;
+  int i, j;
+
+  x01 = 1;
+  x02 = x01 + 1;
+  x03 = x02 + 1;
+  x04 = x03 + 1;
+  x05 = 1;
+
+  i = 0;
+  while (i < 100) {
+    j = i+1;
+    while (j < 100) {
+      x05 = x05 + 1;    /* x05 should be kept in a register */
+      j = j+1;
+    }
+    
+    i = i+1;
+  }
+
+  x06 = x04 + x03;
+  x07 = x06 + x02;
+  x08 = x07 + x01;
+
+  println(x05);
+  println(x08);
+}

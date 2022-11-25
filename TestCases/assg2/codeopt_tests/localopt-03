@@ -1,0 +1,80 @@
+/*
+ * File: localopt-03
+ * Tests: intra-block copy propagation: IF statement, mixed globals and locals
+ */
+
+extern void println(int n);
+
+int u, w;
+
+void f(void) {
+  int v;
+  
+  u = 1;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  if (u == w) {
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+  }
+  else {
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+}
+
+void main(void) {
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+  f();
+
+  println(u);
+  println(w);
+}
+

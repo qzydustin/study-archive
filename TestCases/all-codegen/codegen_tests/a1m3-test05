@@ -1,0 +1,19 @@
+/* assignments to several local scalar variables */
+
+extern void println (int n);
+
+void main(void)
+{
+  int x, y, z, u, v;
+
+  x = 111;
+  y = 222;
+  z = 333;
+  u = 444;
+  v = 555;
+  println(x);
+  println(y);
+  println(z);
+  println(u);
+  println(v);
+}

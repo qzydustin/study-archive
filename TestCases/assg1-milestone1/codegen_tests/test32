@@ -1,0 +1,28 @@
+/* functions with multiple local char variables and function calls */
+
+extern void println(int x);
+
+void f(char x) {
+    char u;
+    char v;
+    char w;
+
+    u = 23;
+    v = 34;
+
+    println(x);
+    w = 45;
+
+    println(u);
+    x = 67;
+
+    println(v);
+
+    println(w);
+
+    println(x);
+}
+
+void main(void) {
+    f(12);
+}

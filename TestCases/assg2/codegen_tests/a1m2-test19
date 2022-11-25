@@ -1,0 +1,14 @@
+/* assignment: char --> int conversion: local var -> local var */
+
+extern void println (int n);
+
+void main(void)
+{
+  int x;
+  char y;
+
+  y = 'Q';
+  x = y;
+  println(x);
+  println(y);
+}

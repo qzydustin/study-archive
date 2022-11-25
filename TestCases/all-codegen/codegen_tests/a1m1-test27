@@ -1,0 +1,19 @@
+/* chain of function calls + passing multiple char arguments */
+
+extern void println(int x);
+
+void g(char u, char v, char w, char x) {
+    println(v);
+    println(u);
+    println(x);
+    println(w);
+}
+
+void f(char u, char v, char w, char x) {
+    g(u, v, w, x);
+    g(w, x, v, u);
+}
+
+void main(void) {
+    f('a', '3', '>', '@');
+}

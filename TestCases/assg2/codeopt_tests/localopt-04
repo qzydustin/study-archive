@@ -1,0 +1,24 @@
+/*
+ * File: localopt-04
+ * Tests: intra-block copy propagation: a single basic block in a for loop
+ */
+
+extern void println(int n);
+
+void main(void) {
+  int i, u, v, w;
+
+  for (i = 0; i < 1000; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  println(u);
+  println(v);
+  println(w);
+}
+

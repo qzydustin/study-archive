@@ -1,0 +1,16 @@
+/* array assignments: local --> global */
+
+int x[10];
+
+extern void println (int n);
+
+void main(void)
+{
+  int y[10];
+  int u;
+
+  y[7] = 1234;
+  x[0] = y[7];
+  u = x[0];
+  println(u);
+}

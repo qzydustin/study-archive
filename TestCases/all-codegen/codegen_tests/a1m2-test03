@@ -1,0 +1,24 @@
+/* assignments to several local and global chars */
+
+char x, y, z;
+
+extern void println (int n);
+
+void main(void)
+{
+  char u, v, w;
+  
+  x = 'A';
+  u = 'A';
+  y = 'B';
+  v = 'B';
+  println(x);
+  println(u);
+
+  z = 'C';
+  w = 'C';
+  println(y);
+  println(z);
+  println(v);
+  println(w);
+}
