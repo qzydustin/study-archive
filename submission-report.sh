@@ -26,8 +26,8 @@ fi
 input_date_seconds=$(date -d"$input_date" +%s)
 
 # Generate a user-friendly timestamp for the output filename
-timestamp=$(date +"submit-%Y-%m-%d-%H:%M:%S")
-output_file="$timestamp.txt"
+filename=$(date +"submit-%Y%m%d-%H%M%S")
+output_file="$filename.txt"
 
 # Use the find command to locate all direct subdirectories in the specified path and retrieve their modification dates
 find "$input_path" -mindepth 1 -maxdepth 1 -type d -exec bash -c '
