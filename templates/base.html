@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PBMS</title>
+    {% block css %}
+      <!-- The CSS of your child templates will appear here -->
+    {% endblock %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}" />
+  </head>
+  <body>
+    <header>
+      <h1>PBMS</h1>
+      <nav>
+        {% if user.is_authenticated %}
+          <p>
+            Hi, {{ user.username }} | <a href="{% url 'logout' %}">Logout</a>
+          </p>
+        {% else %}
+          <p>
+            <a href="{% url 'register' %}">Register</a> | <a href="{% url 'login' %}">Login</a>
+          </p>
+        {% endif %}
+      </nav>
+    </header>
+
+    <div id="content">
+      {% block content %}
+        <!-- The content of your child templates will appear here -->
+      {% endblock %}
+    </div>
+
+    <footer>
+      <p>Copyright &copy; 2024</p>
+    </footer>
+  </body>
+</html>

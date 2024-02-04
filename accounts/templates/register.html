@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block css %}
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'accounts/form.css' %}" />
+{% endblock %}
+{% block content %}
+  <div class="form-container">
+    <h2>Register</h2>
+    <form method="post">
+      {% csrf_token %}
+      {% for field in form %}
+        <div class="form-group {{ field.name }}">
+          {{ field.label_tag }}
+          {{ field }}
+          {% if field.errors %}
+            <div class="errors">{{ field.errors }}</div>
+          {% endif %}
+          {% if field.help_text and not field.errors %}
+            <div class="help-text">{{ field.help_text }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+      <button type="submit">Register</button>
+    </form>
+    <p>
+      Already have an account? <a href="{% url 'login' %}">Login here</a>
+    </p>
+  </div>
+{% endblock %}
