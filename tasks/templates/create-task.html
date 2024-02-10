@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+  <a href="{%  url 'home' %}">
+    <button>Home</button>
+  </a>
+</div>
+
+<h2>Create a task - let the productivity begin!</h2>
+
+<form method="POST" autocomplete="off">
+
+  {% csrf_token %}
+
+  {{ form.as_p }}
+
+  <input type="submit" value="Submit ">
+
+
+</form>
+{% endblock %}

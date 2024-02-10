@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+  <a href="{%  url 'home' %}">
+    <button>Home</button>
+  </a>
+</div>
+<div>
+
+</div>
+<h2>Tasks Backlog</h2>
+
+
+{% for task in tasks %}
+  <b>Task:</b> {{ task.title }}
+  <br>
+  <br>
+  <b>Content:</b> {{ task.content }}
+  <br>
+  <br>
+  <br>
+{% endfor %}
+{% endblock %}
