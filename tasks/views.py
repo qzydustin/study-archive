@@ -3,22 +3,16 @@ from .models import Task
 from .forms import TaskForm
 # Create your views here.
 
-
-# create a task
-def createTask(request):
-   form = TaskForm()
-
-   if request.method == 'POST':
-      form = TaskForm(request.POST)
-
-      if form.is_valid():
-         form.save()
-         # return HttpResponse('Your task was created')
-         return redirect('view-tasks')
-
-   context = {'form' : form}
-
-   return render(request, 'create-task.html', context=context)
+def create_task(request):
+    if request.method == 'POST':
+        form = TaskForm(request.POST)
+        if form.is_valid():
+            form.save()
+            # TODO: Redirect to the tasks list
+            return redirect('home')
+    else:
+        form = TaskForm()
+    return render(request, 'create_task.html', {'form': form})
 
 # read a task
 def viewTasks(request):
