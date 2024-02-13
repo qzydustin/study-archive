@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Tasks Backlog</h2>
+  <ul>
+    {% for task in tasks %}
+      <li>
+        <strong>{{ task.title }}</strong> ({{ task.status }}) - Due: {{ task.due_date|default:'No deadline' }}<br />
+        {{ task.content }}<br />
+        Priority: {{ task.priority }}, Posted on: {{ task.date_posted }}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}
