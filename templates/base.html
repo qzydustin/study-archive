@@ -12,19 +12,33 @@
   </head>
   <body>
     <header>
-      <h1>PBMS</h1>
-      <nav>
+      <div class="header-section brand">
+        <h1>PBMS</h1>
+      </div>
+      <span class="divider">|</span>
+
+      <div class="header-section navigation">
+        <a href="{% url 'home' %}" class="nav-link">Home</a>
+        <a href="{% url 'create_task' %}" class="nav-link">Create Task</a>
+        <a href="{% url 'list_tasks' %}" class="nav-link">List Tasks</a>
+      </div>
+      <div class="header-section auth-links">
         {% if user.is_authenticated %}
-          <p>
-            Hi, {{ user.username }} | <a href="{% url 'logout' %}">Logout</a>
-          </p>
+          <span>Hi, {{ user.username }}</span>
+          <span class="divider">|</span>
+          <a href="{% url 'logout' %}" class="auth-link">Logout</a>
         {% else %}
-          <p>
-            <a href="{% url 'register' %}">Register</a> | <a href="{% url 'login' %}">Login</a>
-          </p>
+          <a href="{% url 'register' %}" class="auth-link">Register</a>
+          <span class="divider">|</span>
+          <a href="{% url 'login' %}" class="auth-link">Login</a>
         {% endif %}
-      </nav>
+      </div>
+      
+      
     </header>
+    
+    
+    
 
     <div id="content">
       {% block content %}
