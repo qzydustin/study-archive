@@ -22,7 +22,7 @@ class Task(models.Model):
     due_date = models.DateField(null=True, blank=True)
 
     # Posting date, automatically set to current time
-    date_posted = models.DateTimeField(auto_now_add=True)
+    posted_date = models.DateTimeField(auto_now_add=True)
 
     # User association
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tasks")
