@@ -6,17 +6,6 @@
       <h1>Welcome, {{ user.username }}!</h1>
       <p>This is your product backlog management homepage. Here you can manage your product backlogs.</p>
       <!-- More content related to the management system -->
-      <div>
-        <a href="{%  url 'view-tasks' %}">
-          <button>View tasks</button>
-        </a>
-      </div>
-      <br>
-      <div>
-        <a href="{%  url 'create-task' %}">
-          <button>Create a task</button>
-        </a>
-      </div>
     </div>
   {% else %}
     <!-- User is not logged in, display PBMS introduction placeholder -->
