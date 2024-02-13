@@ -8,3 +8,8 @@ repos:
       args: [ --fix ]
     # Run the formatter.
     - id: ruff-format
+- repo: https://github.com/Riverside-Healthcare/djLint
+  rev: v1.34.1
+  hooks:
+    - id: djlint-reformat-django
+    - id: djlint-django
