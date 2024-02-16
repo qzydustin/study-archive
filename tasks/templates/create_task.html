@@ -5,7 +5,7 @@
 {% endblock css %}
 {% block content %}
     <div class="form-container">
-        <h2>Register</h2>
+        <h2>Create a task</h2>
         <form method="post">
             {% csrf_token %}
             {% for field in form %}
@@ -16,10 +16,7 @@
                     {% if field.help_text and not field.errors %}<div class="help-text">{{ field.help_text }}</div>{% endif %}
                 </div>
             {% endfor %}
-            <button type="submit">Register</button>
+            <button type="submit">Submit</button>
         </form>
-        <p>
-            Already have an account? <a href="{% url 'login' %}">Login here</a>
-        </p>
     </div>
 {% endblock content %}
