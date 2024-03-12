@@ -1,34 +1,43 @@
 {% extends "base.html" %}
+
+{% load static %}
+
 {% block css %}
-    {% load static %}
-    <link rel="stylesheet" type="text/css" href="{% static 'card.css' %}" />
-{% endblock css %}
+<link rel="stylesheet" type="text/css" href="{% static 'card.css' %}" />
+{% endblock %}
+
 {% block content %}
-    <h2>Tasks Backlog</h2>
-    {% if tasks %}
-        <div class="row">
-            {% for task in tasks %}
-                <div class="task-card">
-                    <div class="task-header">
-                        Status: {{ task.status }}
-                        <br />
-                        Priority: {{ task.priority }}
-                    </div>
-                    <div class="task-body">
-                        <h5>{{ task.title }}</h5>
-                        <p>{{ task.content }}</p>
-                    </div>
-                    <div class="task-footer">
-                        Posted: {{ task.posted_date|date:'Y-m-d' }}
-                        <br />
-                        Due: {{ task.due_date|default:'No deadline'|date:'Y-m-d' }}
-                        <br />
-                        Owner: {{ task.owner.username }}
-                    </div>
-                </div>
-            {% endfor %}
+<h2>Tasks Backlog</h2>
+
+{% if tasks %}
+<div class="row">
+    {% for task in tasks %}
+    <div class="task-card">
+        <div class="task-header">
+            Status: {{ task.status }}
+            <br />
+            Priority: 
+            <form action="{% url 'update_task_priority' task.id %}" method="post" class="inline-form">
+                {% csrf_token %}
+                <input type="number" name="priority" value="{{ task.priority }}" min="1" class="priority-input">
+                <button type="submit" class="update-priority-btn">Update</button>
+            </form>
         </div>
-    {% else %}
-        <p>No tasks found.</p>
-    {% endif %}
+        <div class="task-body">
+            <h5>{{ task.title }}</h5>
+            <p>{{ task.content }}</p>
+        </div>
+        <div class="task-footer">
+            Posted: {{ task.posted_date|date:"Y-m-d" }}
+            <br />
+            Due: {{ task.due_date|default:'No deadline'|date:"Y-m-d" }}
+            <br />
+            Owner: {{ task.owner.username }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>No tasks found.</p>
+{% endif %}
 {% endblock content %}
