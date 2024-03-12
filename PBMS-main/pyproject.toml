@@ -1,6 +1,0 @@
-[tool.ruff.lint]
-# Add additional rules I001 to the default set
-select = ["E4", "E7", "E9", "F", "I001"]
-
-[tool.djlint]
-profile = "django"
