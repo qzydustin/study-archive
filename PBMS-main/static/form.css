@@ -1,0 +1,105 @@
+.form-container {
+    max-width: 300px;
+    /* Add margin to the top and bottom to center the form and avoid sticking to the browser edge */
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    /* Enhance the shadow effect for a sense of depth */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    /* Set background color to white */
+    background: #fff;
+}
+
+.form-container h2 {
+    text-align: center;
+    /* Increase space between title and form elements */
+    margin-bottom: 20px;
+}
+
+.form-container button {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    /* Bolden button text for clarity */
+    font-weight: bold;
+    /* Add margin to the top of the button */
+    margin-top: 10px;
+    /* Smooth transition effect */
+    transition: background-color 0.3s;
+}
+
+.form-container button:hover {
+    background-color: #0056b3;
+}
+
+.form-group {
+    /* Set to relative positioning to create floating effect for help_text */
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    /* Bolden labels for readability */
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    /* Ensure width includes padding and border */
+    box-sizing: border-box;
+}
+
+.errors {
+    /* Use Bootstrap's error color */
+    color: #dc3545;
+    font-size: 0.875em;
+    margin-top: 5px;
+}
+
+.help-text {
+    /* Default not displayed */
+    display: none;
+    /* Absolute positioning */
+    position: absolute;
+    /* Position below the input field */
+    top: 100%;
+    /* Slight offset */
+    left: 10px;
+    /* Light background color */
+    background-color: #f8f9fa;
+    /* Grey text */
+    color: #6c757d;
+    padding: 5px;
+    border-radius: 4px;
+    /* Add shadow */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-size: 0.875em;
+    /* Ensure it is above other elements */
+    z-index: 100;
+    /* No text wrapping */
+    white-space: nowrap;
+}
+
+.form-group:hover .help-text {
+    /* Display help text when mouse hovers over the form group */
+    display: block;
+}
+
+/* Adjust Form Padding */
+.form-container .form-group:last-child {
+    /* Remove bottom margin from the last form group */
+    margin-bottom: 0;
+}

@@ -1,0 +1,52 @@
+Functional Requirements
+1.0 The system shall authenticate users as team members.
+    1.1 The system shall reject unauthorized users from accessing tasks.
+        1.1.1 The system shall reject unauthorized users 99% of the time.
+        1.1.2 The system shall notify the system administrator after 5 consecutive incorrect login attempts.
+    1.2 The system shall accept authorized users.
+        1.2.1 The system shall allow a user to register.
+            1.2.1.1 The system shall ensure a valid email address.
+            1.2.1.2 The system shall ensure X number of characters for a password.
+        1.2.2 The system shall accept authorized users 99% of the time.
+        1.2.3 The system shall assign permissions to a user.
+            1.2.3.1 The system shall assign a user as a manager.
+            1.2.3.2 The system shall assign a user as an employee.
+2.0 The system shall manage tasks.
+    2.1 The system shall add a new task.
+        2.1.1 The system shall accept a name for the task.
+        2.1.2 The system shall accept a description for the task.
+        2.1.3 The system shall add a date to the new task.
+        2.1.4 The system shall state who created the task.
+        2.1.5 The system shall accept a name of the responsible party. (Responsible party: Whoever is in charge of ensuring the task completion.)
+    2.2 The system shall delete an existing task.
+        2.2.1 The system shall ask for confirmation.
+        2.2.2 The system shall notify of permanent deletion.
+    2.3 The system shall edit an existing task.
+        2.3.1 The system shall edit the name of a task.
+        2.3.2 The system shall edit the description of a task.
+        2.3.3 The system shall edit the name of the responsible party.
+        2.3.4 The system shall add a date to the modified task.
+        2.3.5 The system shall state who modified the task.
+    2.4 The system shall set a priority level for a task.
+    2.5 The system shall change the priority level for a task.
+        2.5.1 The system shall state who changed the priority level.
+    2.6 The system shall move tasks from the Product Backlog to the Sprint Backlog.
+    2.7 The system shall move taks from the Sprint Backlog to the Product Backlog.
+    2.7 The system shall move tasks from the Sprint Backlog to the Ready for Test status.
+    2.8 The system shall accept comments on a task.
+3.0 The system shall set test statuses.
+    3.1 The system shall set a test status as failed.
+    3.2 The system shall send a failed test’s task to the Sprint Backlog.
+    3.3 The system shall set a test status as passed.
+    3.4 The system shall mark the passed test’s task as “Ready for Release.”
+4.0 The system shall manage projects.
+
+Characteristic Requirements
+5.0 The system shall have a homepage.
+6.0 The system shall look nice. (nice: pleasing to the majority of people.) 
+7.0 The system shall hold X number of tasks.
+8.0 The system shall hold X number of users. 
+
+Access requirements
+9.0 The system shall be ran using a virtual environment.
+
