@@ -9,6 +9,8 @@
 {% block content %}
 <h2>Tasks Backlog</h2>
 
+<div style="color:red; padding-bottom: 20px;">{{ deleteConfirmation }}</div>
+
 {% if tasks %}
 <div class="row">
     {% for task in tasks %}
@@ -16,7 +18,7 @@
         <div class="task-header">
             Status: {{ task.status }}
             <br />
-            Priority: 
+            Priority:
             <form action="{% url 'update_task_priority' task.id %}" method="post" class="inline-form">
                 {% csrf_token %}
                 <input type="number" name="priority" value="{{ task.priority }}" min="1" class="priority-input">
@@ -34,6 +36,14 @@
             <br />
             Owner: {{ task.owner.username }}
         </div>
+        <div style="padding: 20px;">
+            <a href="{%  url 'update_task' task.id %}">
+              <button>Update task</button>
+            </a>
+            <a href="{%  url 'delete_task' task.id %}">
+              <button>Delete task</button>
+            </a>
+          </div>
     </div>
     {% endfor %}
 </div>

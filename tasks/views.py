@@ -7,6 +7,8 @@ from .models import Task
 from django.shortcuts import get_object_or_404
 from .forms import TaskPriorityUpdateForm
 
+
+
 @login_required
 def update_task_priority(request, task_id):
     task = get_object_or_404(Task, pk=task_id, owner=request.user)  # Ensures task belongs to user
@@ -20,7 +22,32 @@ def update_task_priority(request, task_id):
 
     return render(request, 'tasks/update_task_priority.html', {'form': form, 'task': task})
 
+# update a task
+@login_required
+def update_task(request, task_id):
+   task = Task.objects.get(id=task_id)
+   form = TaskForm(instance=task)
 
+   if request.method == 'POST':
+      form = TaskForm(request.POST, instance = task)
+      if form.is_valid():
+         form.save()
+         return redirect('list_tasks')
+
+   context = {'form' : form}
+   return render(request, 'update_task.html', context=context)
+
+# delete a task
+@login_required
+def delete_task(request, task_id):
+   task = Task.objects.get(id=task_id)
+   if request.method == 'POST':
+      task.delete()
+      context = {'deleteConfirmation' : '"' + task.title + '" was deleted!'}
+      return list_tasks(request,context)
+
+   context = {'objectTitle':task.title}
+   return render(request, 'delete_task.html', context=context)
 
 @login_required
 def create_task(request):
@@ -37,7 +64,9 @@ def create_task(request):
 
 
 @login_required
-def list_tasks(request):
+def list_tasks(request, newContext={}):
     # Display only tasks owned by the logged-in user
     tasks = Task.objects.filter(owner=request.user)
-    return render(request, "list_tasks.html", {"tasks": tasks})
+    context = {'tasks' : tasks}
+    context.update(newContext)
+    return render(request, "list_tasks.html", context=context)
