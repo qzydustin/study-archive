@@ -36,14 +36,14 @@
             <br />
             Owner: {{ task.owner.username }}
         </div>
-        <div style="padding: 20px;">
+        <div class="button-group">
             <a href="{%  url 'update_task' task.id %}">
               <button>Update task</button>
             </a>
             <a href="{%  url 'delete_task' task.id %}">
               <button>Delete task</button>
             </a>
-          </div>
+        </div>
     </div>
     {% endfor %}
 </div>

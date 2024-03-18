@@ -8,9 +8,7 @@
         <h2>Update a task</h2>
         <form method="post">
             {% csrf_token %}
-
-            {{ form.as_p }}
-
+            {{ form.as_div }}
             <button type="submit">Submit</button>
         </form>
     </div>

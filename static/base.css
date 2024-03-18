@@ -72,3 +72,11 @@ header {
 .auth-link:hover {
     text-decoration: underline;
 }
+
+a {
+    text-decoration: none;
+}
+
+.button-group {
+    padding: 10px;
+}
