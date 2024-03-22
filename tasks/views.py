@@ -1,25 +1,26 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import TaskForm
+from .forms import TaskForm, TaskPriorityUpdateForm
 from .models import Task
 
-from django.shortcuts import get_object_or_404
-from .forms import TaskPriorityUpdateForm
 
 @login_required
 def update_task_priority(request, task_id):
-    task = get_object_or_404(Task, pk=task_id, owner=request.user)  # Ensures task belongs to user
-    if request.method == 'POST':
+    task = get_object_or_404(
+        Task, pk=task_id, owner=request.user
+    )  # Ensures task belongs to user
+    if request.method == "POST":
         form = TaskPriorityUpdateForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('list_tasks')
+            return redirect("list_tasks")
     else:
         form = TaskPriorityUpdateForm(instance=task)
 
-    return render(request, 'tasks/update_task_priority.html', {'form': form, 'task': task})
-
+    return render(
+        request, "tasks/update_task_priority.html", {"form": form, "task": task}
+    )
 
 
 @login_required
