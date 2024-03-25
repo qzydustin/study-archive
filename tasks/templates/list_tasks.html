@@ -5,6 +5,7 @@
 {% endblock css %}
 {% block content %}
     <h2>Tasks Backlog</h2>
+    <div style="color:red; padding-bottom: 20px;">{{ deleteConfirmation }}</div>
     {% if tasks %}
         <div class="row">
             {% for task in tasks %}
@@ -35,6 +36,14 @@
                         Due: {{ task.due_date|default:'No deadline'|date:"Y-m-d" }}
                         <br />
                         Owner: {{ task.owner.username }}
+                    </div>
+                    <div class="button-group">
+                        <a href="{%  url 'update_task' task.id %}">
+                        <button>Update task</button>
+                        </a>
+                        <a href="{%  url 'delete_task' task.id %}">
+                        <button>Delete task</button>
+                        </a>
                     </div>
                 </div>
             {% endfor %}

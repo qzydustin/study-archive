@@ -105,3 +105,10 @@ header {
 .dark-theme .auth-link {
     color: #0056b3;
 }
+a {
+    text-decoration: none;
+}
+
+.button-group {
+    padding: 10px;
+}
