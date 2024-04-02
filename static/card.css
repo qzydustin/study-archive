@@ -1,3 +1,17 @@
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.column {
+    flex: 1;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+}
+
 .tasks-container {
     display: flex;
     flex-wrap: wrap;
@@ -8,12 +22,10 @@
 }
 
 .task-card {
+    margin-bottom: 10px;
+    padding: 10px;
     border: 1px solid;
-    /* Rounded corners for the card */
-    border-radius: 8px;
-    overflow: hidden;
-    /* Ensures the content fits within the corners */
-    width: calc(33.333% - 20px);
+    border-radius: 5px;
 }
 
 .task-header,
@@ -71,6 +83,10 @@
 }
 
 /* light theme */
+.light-theme .column {
+    border-color: #ccc;
+}
+
 .light-theme .task-card {
     border-color: #ddd;
     /* Light grey border */
@@ -96,6 +112,10 @@
 }
 
 /* dark theme */
+.dark-theme .column {
+    border-color: #222;
+}
+
 .dark-theme .task-card {
     border-color: #333;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
