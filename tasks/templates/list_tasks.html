@@ -3,42 +3,44 @@
 {% block css %}
     <link rel="stylesheet" type="text/css" href="{% static 'card.css' %}" />
 {% endblock css %}
+{% block js %}
+    <script src="{% static 'drag_and_drop.js' %}"></script>
+{% endblock js %}
 {% block content %}
     <h2>Tasks Backlog</h2>
     <div class="delete-confirmation">{{ deleteConfirmation }}</div>
     {% if tasks_by_status %}
         <div class="row">
             {% for status, tasks in tasks_by_status.items %}
-                <div class="column">
-                    <h2>{{ status }}</h2>
+                {% comment %} status is a tuple with two elements: status.0 is the status id and status.1 is the status name {% endcomment %}
+                <div class="column" id="{{ status.0 }}">
+                    <h2>{{ status.1 }}</h2>
                     {% for task in tasks %}
-                        <div class="task-card">
+                        <div class="task-card" id="{{ task.id }}" draggable="true">
                             <div class="task-header">
-                                Status: {{ task.status }}
-                                <br />
-                                Priority:
+                                <h3>Title: {{ task.title }}</h3>
+                            </div>
+                            <hr>
+                            <div class="task-body">
+                                <p>Content: {{ task.content }}</p>
+                            </div>
+                            <hr>
+                            <div class="task-footer">
                                 <form action="{% url 'update_task_priority' task.id %}"
                                       method="post"
-                                      class="inline-form">
+                                      class="form-inline">
                                     {% csrf_token %}
+                                    <label for="priority" class="mr-2">Priority:</label>
                                     <input type="number"
                                            name="priority"
                                            value="{{ task.priority }}"
                                            min="1"
-                                           class="priority-input">
-                                    <button type="submit" class="update-priority-btn">Update</button>
+                                           class="form-control mr-2"
+                                           id="priority">
+                                    <button type="submit" class="btn btn-primary">Update</button>
                                 </form>
-                            </div>
-                            <div class="task-body">
-                                <h5>{{ task.title }}</h5>
-                                <p>{{ task.content }}</p>
-                            </div>
-                            <div class="task-footer">
-                                Posted: {{ task.posted_date|date:"Y-m-d" }}
-                                <br />
-                                Due: {{ task.due_date|default:'No deadline'|date:"Y-m-d" }}
-                                <br />
-                                Owner: {{ task.owner.username }}
+                                <p class="posted-date">Posted: {{ task.posted_date|date:"Y-m-d" }}</p>
+                                <p class="due-date">Due: {{ task.due_date|date:"Y-m-d"|default:'No deadline' }}</p>
                             </div>
                             <div class="button-group">
                                 <a href="{% url 'update_task' task.id %}">

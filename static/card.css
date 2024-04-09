@@ -28,30 +28,6 @@
     border-radius: 5px;
 }
 
-.task-header,
-.task-footer {
-    /* Padding inside header/footer */
-    padding: 10px;
-    /* Smaller font size for less important info */
-    font-size: 14px;
-}
-
-.task-body {
-    /* Padding inside the body */
-    padding: 15px;
-}
-
-.task-body h5 {
-    margin-top: 0;
-    /* Space between title and content */
-    margin-bottom: 10px;
-}
-
-.task-body p {
-    /* Remove default paragraph margin */
-    margin: 0;
-}
-
 @media (max-width: 768px) {
     .task-card {
         /* Two cards per row on smaller screens */
@@ -95,7 +71,8 @@
 }
 
 .light-theme .task-header,
-.light-theme .task-footer {
+.light-theme .task-body,
+.light-theme .task-footer{
     background-color: #f9f9f9;
     color: #000;
 }
@@ -117,11 +94,12 @@
 }
 
 .dark-theme .task-card {
-    border-color: #333;
+    border-color: #000;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 .dark-theme .task-header,
+.dark-theme .task-body,
 .dark-theme .task-footer {
     background-color: #2c2f33;
     color: #ddd;
