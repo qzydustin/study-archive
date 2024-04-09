@@ -27,10 +27,6 @@ function handleDragEnd(e) {
 }
 
 function handleDragEnter(e) {
-    // only add 'over' class to column elements
-    if (!e.target.classList.contains('column')) {
-        return;
-    }
     e.preventDefault();
     e.target.classList.add('over');
 }
@@ -40,25 +36,24 @@ function handleDragLeave(e) {
 }
 
 function handleDragOver(e) {
-    // only add 'over' class to column elements
-    if (!e.target.classList.contains('column')) {
-        return;
-    }
     e.preventDefault();
 }
 
 function handleDrop(e) {
-    // only drop task cards into column elements
-    if (!e.target.classList.contains('column')) {
+    // only drop task cards into column elements or their children
+    let target = e.target;
+    while (target !== null && !target.classList.contains('column')) {
+        target = target.parentNode;
+    }
+    if (target === null) {
         return;
     }
     e.preventDefault();
     let id = e.dataTransfer.getData('text/plain');
     let draggableElement = document.getElementById(id);
-    e.target.appendChild(draggableElement);
-    e.target.classList.remove('over');
-
-    let newStatus = e.target.getAttribute('id');
+    target.appendChild(draggableElement);
+    target.classList.remove('over');
+    let newStatus = target.getAttribute('id');
 
     // send Fetch request
     let csrftoken = getCookie('csrftoken');
