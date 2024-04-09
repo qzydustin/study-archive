@@ -22,26 +22,25 @@
                             </div>
                             <hr>
                             <div class="task-body">
-                                <p>Content:{{ task.content }}</p>
+                                <p>Content: {{ task.content }}</p>
                             </div>
                             <hr>
                             <div class="task-footer">
-                                Priority:
                                 <form action="{% url 'update_task_priority' task.id %}"
                                       method="post"
-                                      class="inline-form">
+                                      class="form-inline">
                                     {% csrf_token %}
+                                    <label for="priority" class="mr-2">Priority:</label>
                                     <input type="number"
                                            name="priority"
                                            value="{{ task.priority }}"
                                            min="1"
-                                           class="priority-input">
-                                    <button type="submit" class="update-priority-btn">Update</button>
+                                           class="form-control mr-2"
+                                           id="priority">
+                                    <button type="submit" class="btn btn-primary">Update</button>
                                 </form>
-                                <br />
-                                Posted: {{ task.posted_date|date:"Y-m-d" }}
-                                <br />
-                                Due: {{ task.due_date|default:'No deadline'|date:"Y-m-d" }}
+                                <p class="posted-date">Posted: {{ task.posted_date|date:"Y-m-d" }}</p>
+                                <p class="due-date">Due: {{ task.due_date|date:"Y-m-d"|default:'No deadline' }}</p>
                             </div>
                             <div class="button-group">
                                 <a href="{% url 'update_task' task.id %}">
