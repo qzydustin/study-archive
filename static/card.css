@@ -95,7 +95,8 @@
 }
 
 .light-theme .task-header,
-.light-theme .task-footer {
+.light-theme .task-body,
+.light-theme .task-footer{
     background-color: #f9f9f9;
     color: #000;
 }
@@ -117,11 +118,12 @@
 }
 
 .dark-theme .task-card {
-    border-color: #333;
+    border-color: #000;
     box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 .dark-theme .task-header,
+.dark-theme .task-body,
 .dark-theme .task-footer {
     background-color: #2c2f33;
     color: #ddd;
