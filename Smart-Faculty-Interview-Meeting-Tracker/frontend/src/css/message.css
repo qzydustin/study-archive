@@ -1,0 +1,24 @@
+.message{
+    width: 100%;
+}
+.message-user{
+    width: 100%;
+    font-size: large;
+}
+.message-time{
+    width: 100%;
+    color: gray;
+}
+.message-body{
+    width: 80%;
+    background-color: darkblue;
+    color: gold;
+    border-radius: 15px;
+    padding-left: 10px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    font-size: larger;
+    cursor: auto;
+    white-space:pre-wrap;
+    word-wrap:break-word;
+}

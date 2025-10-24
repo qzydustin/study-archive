@@ -1,0 +1,50 @@
+.sider{
+    width: 20%;
+    height: 100%;
+    top:0%;
+    Left:0%;
+    box-sizing: border-box;
+    position: fixed;
+    background-color:DarkBlue;
+    font-family:Georgia, "Times New Roman", Times, serif;
+    user-select: none;
+}
+
+.logo-container{
+    margin-top:30px;
+    width: 100%;
+}
+
+.logo{
+    margin: 0 auto;
+    width: 120px;
+}
+
+.logo>img{
+    width: 100%;
+}
+
+.sider>h2{
+    padding:0px 20px;
+    color: gold;
+    text-shadow: 3px 3px 0 Olive;
+    user-select: none;
+    margin: 30px 0;
+}
+.buttonBar{
+    height: 70%;
+    font-weight:550;
+}
+.buttonBar>div{
+    line-height: 20px;
+    font-size: 20px;
+    padding:20px;
+    color: gold;
+    cursor:pointer;
+}
+.buttonBar>div:hover{
+    background-color:gold;
+    color: white;
+    border-left:gold solid 10px;
+    transition: 0.3s;
+}

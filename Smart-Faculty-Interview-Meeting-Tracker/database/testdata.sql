@@ -1,0 +1,14 @@
+USE SFIMT;
+INSERT INTO users VALUES(null,"islamm@uwec.edu","123456","+1 123456","Super Admin",0);
+INSERT INTO users VALUES(null,"zhuj3128@uwec.edu","123456","+1 123456","Jiang Zhu",1);
+INSERT INTO users VALUES(null,"daij5757@uwec.edu","123456","+1 123456","Junfeng Dai",2);
+INSERT INTO users VALUES(null,"qiz9744@uwec.edu","123456","+1 123456","Zhenyu Qi",3);
+INSERT INTO users VALUES(null,"wangs4830@uwec.edu","123456","+1 123456","Suyu Wang",4);
+INSERT INTO users VALUES(null,"liy6543@uwec.edu","123456","+1 123456","Yifan Li",5);
+INSERT INTO location VALUES(null,"101 Davies Center","Eau Claire, WI");
+INSERT INTO meeting VALUES(null,"2019-03-05 01:00:00","2019-03-05 02:00:00",1,"Good",0);
+INSERT INTO meeting VALUES(null,"2019-05-05 01:00:00","2020-05-05 02:00:00",1,null,0);
+INSERT INTO user_meeting VALUES(5,1);
+INSERT INTO user_meeting VALUES(4,1);
+INSERT INTO user_meeting VALUES(6,2);
+INSERT INTO user_meeting VALUES(3,2);

@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    username: root
+    password:
+    url: jdbc:mysql://localhost:3306/sfimt?serverTimezone=UTC
+    driverClassName: com.mysql.cj.jdbc.Driver
+  mail:
+    host: smtp.mailgun.org
+    username: 
+    password:

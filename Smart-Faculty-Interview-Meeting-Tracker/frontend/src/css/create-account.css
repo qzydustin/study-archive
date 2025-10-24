@@ -1,0 +1,37 @@
+#CreateAccount{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 600px;
+    height: 550px;
+    justify-content: center;
+}
+#CreateAccount>p{
+    width: 600px;
+    font-size: x-large;
+    margin-top:20px;
+}
+.input>input{
+    width: 300px;
+    height: 25px;
+}
+#submit-button{
+    height: 50px;
+    line-height: 50px;
+    width: 150px;
+    text-align: center;
+    font-size: larger;
+    border: darkblue solid 2px;
+    color: darkblue;
+    border-radius: 3px;
+    margin-top: 20px;
+}
+#submit-button:hover{
+    background-color: darkblue;
+    color: gold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+select{
+    width: 300px;
+}

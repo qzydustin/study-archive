@@ -1,0 +1,198 @@
+.overlay{
+    position: fixed; 
+    top:0; 
+    left:0;
+    width:100vw; 
+    height:100vh; 
+    background-color: rgba(0,0,0,0.5);
+    z-index: 10;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+}
+.overlay:hover{
+    padding-top: 0;
+    color: black;
+}
+.button-bar{
+    width: 100px;
+    height: 600px;
+    margin-right: 5px;
+    display: flex;
+    flex-direction: column;
+    padding:20px 0;
+}
+.buttons{
+    width: 100px;
+    height: 50px;
+    background-color: darkblue;
+    color: gold;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    line-height: 50px;
+    text-align: center;
+    font-size: larger;
+    transition: 0.3s;
+}
+.buttons:hover{
+    background-color: gold;
+    color: white;
+}
+.view{
+    width: 500px;
+    height: 600px;
+    background-color: whitesmoke;
+    border-radius: 3%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+.tag-small{
+    width: 200px;
+    height: 30px;
+    margin-left:25px;
+    margin-right: 25px;
+    margin-top:20px;
+    border-bottom: darkblue solid 3px;
+    font-size: larger;
+}
+.info-small{
+    width: 200px;
+    height: 30px;
+    margin-left:25px;
+    margin-right: 25px;
+    white-space:pre-wrap;
+    font-size: large;
+}
+.info-small:hover{
+    color: gold;
+    transition: 0.3s;
+}
+.tag-big{
+    width: 450px;
+    height: 30px;
+    margin-left:25px;
+    margin-right: 25px;
+    margin-top:20px;
+    border-bottom: darkblue solid 3px;
+    font-size: larger;
+}
+.info-big{
+    width: 200px;
+    height: 30px;
+    margin-left:25px;
+    margin-right: 25px;
+    white-space:pre-wrap;
+    font-size: large;
+}
+.info-big:hover{
+    color: gold;
+    transition: 0.3s;
+}
+.close{
+    width: 100%;
+    height: 10px;
+}
+.close>img{
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+.close>img:hover{
+    width: 50px;
+    height: 50px;
+}
+.option{
+    width: 500px;
+    height: 600px;
+    margin-left:5px;
+    border-radius: 3%;
+}
+.feedback{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.feedback_content{
+    width: 100%;
+    height: 500px;
+    border-radius: 3%;
+    background-color: whitesmoke;
+    padding: 20px;
+    overflow-y:auto;
+}
+.feedback_text{
+    width: 100%;
+    height: 400px;
+    resize: none;
+    cursor: default;
+}
+.feedback_text:focus{
+    border-color: #66afe9;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+.chat{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+.chat-message{
+    padding: 20px;
+    width: 100%;
+    background-color: whitesmoke;
+    border-radius: 3%;
+    height: 450px;
+}
+.chat-body{
+    overflow-y:auto;
+    width: 90%;
+    height: 85%;
+}
+.chat-input{
+    width: 100%;
+    border-radius: 10px;
+    height: 80px;
+    outline: none;
+    resize: none;
+    margin-top: 5px;
+}
+.chat-input:focus{
+    border-color: #66afe9;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+.option-button{
+    width: 100px;
+    height: 50px;
+    line-height: 50px;
+    background-color: darkblue;
+    color: gold;
+    font-size: larger;
+    border-radius:20px;
+    text-align: center;
+    transition: 0.3s;
+}
+.option-button:hover{
+    background-color: gold;
+    color: white;
+}
+.people{
+    width: 500px;
+    height: 600px;
+    background-color: whitesmoke;
+    display: flex;
+    flex-direction:column;
+    border-radius: 3%;
+    padding: 20px;
+    overflow-y:auto;
+}
+.user-list{
+    display: flex;
+    flex-direction:column;
+}

@@ -1,0 +1,68 @@
+#meeting_tracker_root{
+  width: 80%;
+  position: fixed;
+  right: 0%;
+  top:50px;
+  font-family:Georgia, "Times New Roman", Times, serif;
+  top: 0;
+  bottom:0;
+  overflow-y:scroll;
+  overflow-x:hidden;
+}
+
+.Header_Info{
+  width: 100%;
+  height: 50px;
+  right: 0;
+  top:0;
+  border-bottom: darkblue solid 3px;
+  box-sizing: border-box;
+  color: black; 
+  font-size: 25px;
+  position: sticky;
+  display: flex;
+  justify-content: flex-end;
+  color:DarkBlue;
+  background-color: white;
+}
+.Header_Info>p{
+  font-size: 20px;
+  line-height: 50px;
+  margin: 0 50px;
+  user-select: none;
+  color:darkgray;
+}
+
+.Header_Info>p:hover{
+  color: darkblue;
+  transition: 0.3s;
+}
+
+.Header_Info>div{
+  font-size: 25px;
+  width: 120px;
+  text-align: center;
+  line-height:50px;
+}
+
+.Header_Info>div:hover{
+  background-color: darkblue;
+  color: gold;
+  transition: 0.3s;
+  cursor:pointer;
+  user-select: none;
+}
+
+#main{
+  display: flex;
+  flex-direction:column;
+  align-items: center;
+  width: 100%;
+}
+#title{
+  margin-top:20px;
+  height:60px;
+  font-size: 40px;
+  width: 90%;
+  user-select: none;
+}
