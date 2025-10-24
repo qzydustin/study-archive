@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description"
+              content="PBMS is a Product Backlog Management System." />
+        <meta name="keywords" content="PBMS" />
+        <title>PBMS</title>
+        {% block css %}
+        {% endblock css %}
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'base.css' %}" />
+    </head>
+    <body>
+        <header>
+            <div class="header-section brand">
+                <h1>PBMS</h1>
+            </div>
+            <span class="divider">|</span>
+            <div class="header-section navigation">
+                <a href="{% url 'home' %}" class="nav-link">Home</a>
+                <a href="{% url 'create_task' %}" class="nav-link">Create Task</a>
+                <a href="{% url 'list_tasks' %}" class="nav-link">List Tasks</a>
+            </div>
+            <div class="theme-icon sun" onclick="toggleTheme()">☀️</div>
+            <div class="theme-icon moon" onclick="toggleTheme()">🌙</div>
+            <div class="header-section auth-links">
+                {% if user.is_authenticated %}
+                    <span>Hi, {{ user.username }}</span>
+                    <span class="divider">|</span>
+                    <a href="{% url 'logout' %}" class="auth-link">Logout</a>
+                {% else %}
+                    <a href="{% url 'register' %}" class="auth-link">Register</a>
+                    <span class="divider">|</span>
+                    <a href="{% url 'login' %}" class="auth-link">Login</a>
+                {% endif %}
+            </div>
+        </header>
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
+        </div>
+        <footer>
+            <p>Copyright ©2024</p>
+        </footer>
+        {% block js %}
+        {% endblock js %}
+        <script src="{% static 'theme.js' %}"></script>
+    </body>
+</html>

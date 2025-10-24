@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'card.css' %}" />
+{% endblock css %}
+{% block js %}
+    <script src="{% static 'drag_and_drop.js' %}"></script>
+{% endblock js %}
+{% block content %}
+    <h2>Tasks Backlog</h2>
+    <div class="delete-confirmation">{{ deleteConfirmation }}</div>
+    {% if tasks_by_status %}
+        <div class="row">
+            {% for status, tasks in tasks_by_status.items %}
+                {% comment %} status is a tuple with two elements: status.0 is the status id and status.1 is the status name {% endcomment %}
+                <div class="column" id="{{ status.0 }}">
+                    <h2>{{ status.1 }}</h2>
+                    {% for task in tasks %}
+                        <div class="task-card" id="{{ task.id }}" draggable="true">
+                            <div class="task-header">
+                                <h3>Title: {{ task.title }}</h3>
+                            </div>
+                            <hr>
+                            <div class="task-body">
+                                <p>Content: {{ task.content }}</p>
+                            </div>
+                            <hr>
+                            <div class="task-footer">
+                                <form action="{% url 'update_task_priority' task.id %}"
+                                      method="post"
+                                      class="form-inline">
+                                    {% csrf_token %}
+                                    <label for="priority" class="mr-2">Priority:</label>
+                                    <input type="number"
+                                           name="priority"
+                                           value="{{ task.priority }}"
+                                           min="1"
+                                           class="form-control mr-2"
+                                           id="priority">
+                                    <button type="submit" class="btn btn-primary">Update</button>
+                                </form>
+                                <p class="posted-date">Posted: {{ task.posted_date|date:"Y-m-d" }}</p>
+                                <p class="due-date">Due: {{ task.due_date|date:"Y-m-d"|default:'No deadline' }}</p>
+                            </div>
+                            <div class="button-group">
+                                <a href="{% url 'update_task' task.id %}">
+                                    <button>Update task</button>
+                                </a>
+                                <a href="{% url 'delete_task' task.id %}">
+                                    <button>Delete task</button>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No tasks available.</p>
+    {% endif %}
+{% endblock content %}

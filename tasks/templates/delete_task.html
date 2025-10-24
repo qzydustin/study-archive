@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'form.css' %}" />
+{% endblock css %}
+{% block content %}
+    <div class="form-container">
+        <h2>Delete a task</h2>
+        <form method="post">
+            {% csrf_token %}
+            <p>Are you sure you want to delete "{{ objectTitle }}" ?</p>
+            <a href="{% url 'list_tasks' %}">
+                <button type="button">Go Back</button>
+            </a>
+            <button type="submit">Yes, delete it</button>
+        </form>
+    </div>
+{% endblock content %}

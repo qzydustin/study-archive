@@ -1,0 +1,117 @@
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.column {
+    flex: 1;
+    margin: 10px;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+}
+
+.tasks-container {
+    display: flex;
+    flex-wrap: wrap;
+    /* Adjust the space between cards */
+    gap: 50px;
+    /* Padding around the entire container */
+    padding: 20px;
+}
+
+.task-card {
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid;
+    border-radius: 5px;
+}
+
+@media (max-width: 768px) {
+    .task-card {
+        /* Two cards per row on smaller screens */
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .task-card {
+        /* Full width cards on very small screens */
+        width: 100%;
+    }
+}
+
+.priority-input {
+    width: 50%;
+    border: 1px solid;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.update-priority-btn {
+    width: 40%;
+    border-radius: 4px;
+    border: 1px solid;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+/* light theme */
+.light-theme .column {
+    border-color: #ccc;
+}
+
+.light-theme .task-card {
+    border-color: #ddd;
+    /* Light grey border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow for depth */
+}
+
+.light-theme .task-header,
+.light-theme .task-body,
+.light-theme .task-footer{
+    background-color: #f9f9f9;
+    color: #000;
+}
+
+.light-theme .priority-input {
+    border-color: #ccc;
+    background-color: #fff;
+    color: #000;
+}
+
+.light-theme .update-priority-btn {
+    background-color: #f9f9f9;
+    color: #000;
+}
+
+/* dark theme */
+.dark-theme .column {
+    border-color: #222;
+}
+
+.dark-theme .task-card {
+    border-color: #000;
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .task-header,
+.dark-theme .task-body,
+.dark-theme .task-footer {
+    background-color: #2c2f33;
+    color: #ddd;
+}
+
+.dark-theme .priority-input {
+    background-color: #333;
+    border-color: #444;
+    color: #ddd;
+}
+
+.dark-theme .update-priority-btn {
+    background-color: #2c2f33;
+    color: #ddd;
+}

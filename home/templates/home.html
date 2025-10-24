@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+    {% if user.is_authenticated %}
+        <!-- User is logged in, display management system placeholder -->
+        <div class="management-system">
+            <h1>Welcome, {{ user.username }}!</h1>
+            <p>This is your product backlog management homepage. Here you can manage your product backlogs.</p>
+            <!-- More content related to the management system -->
+        </div>
+    {% else %}
+        <!-- User is not logged in, display PBMS introduction placeholder -->
+        <div class="pbms-introduction">
+            <h1>Welcome to PBMS</h1>
+            <p>PBMS is a Product Backlog Management System. It allows you to manage product backlogs.</p>
+            <!-- More PBMS introduction information -->
+            <p>
+                <a href="{% url 'register' %}">Register</a> or
+                <a href="{% url 'login' %}">Login</a> to start managing your product backlogs efficiently.
+            </p>
+        </div>
+    {% endif %}
+{% endblock content %}
