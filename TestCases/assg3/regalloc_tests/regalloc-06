@@ -1,0 +1,31 @@
+/*
+ * regalloc-06: register allocation for a few variables in a single basic block.
+ *
+ * This program tests correctness of register allocation across a function call
+ * that has a side effect on a global.
+ */
+
+extern void println(int x);
+
+int g02;
+
+int f(int n) {
+  g02 = g02+1;    /* side effect */
+  return n+1;
+}
+
+void main(void) {
+  int x01;
+
+  x01 = 1;
+  g02 = x01 + x01 + x01 + x01;
+  g02 = g02 + g02;
+  x01 = x01 + x01;
+  g02 = x01 + g02;
+
+  x01 = x01 * f(x01);
+  g02 = g02 * x01;
+      
+  println(x01);
+  println(g02);
+}

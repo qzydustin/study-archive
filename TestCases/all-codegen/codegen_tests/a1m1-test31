@@ -1,0 +1,28 @@
+/* functions with multiple local int variables and function calls */
+
+extern void println(int x);
+
+void f(int x) {
+    int u;
+    int v;
+    int w;
+
+    u = 234;
+    v = 345;
+
+    println(x);
+    w = 456;
+
+    println(u);
+    x = 678;
+
+    println(v);
+
+    println(w);
+
+    println(x);
+}
+
+void main(void) {
+    f(123);
+}

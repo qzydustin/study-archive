@@ -1,0 +1,20 @@
+/* simple procedure calls */
+
+int y;
+
+void acc(int x)
+{
+  y = y*x;
+}
+
+extern void println (int n);
+
+void main(void)
+{
+  int n, f;
+
+  y = 1;
+  for (n = 7; n > 0; n = n-1)
+    acc(n);
+  println(y);
+}

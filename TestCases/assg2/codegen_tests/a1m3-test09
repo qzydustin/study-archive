@@ -1,0 +1,25 @@
+/* char <--> int conversions: mixed locals and globals */
+
+extern void println(int x);
+
+int i0, i1;
+char c0, c1;
+
+void main(void) {
+    int i2;
+    char c2;
+
+    i0 = 255;
+    c2 = i0;
+    i1 = c2;
+    c0 = i1;
+    i2 = c0;
+    c2 = i2;
+    c1 = c2;
+    println(i0);
+    println(i1);
+    println(i2);
+    println(c0);
+    println(c1);
+    println(c2);
+}

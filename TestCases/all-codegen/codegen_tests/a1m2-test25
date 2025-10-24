@@ -1,0 +1,14 @@
+/* simple while loops */
+
+int i;
+
+extern void println (int n);
+
+void main(void)
+{
+  i = 0;
+  while (i < 100) {
+    println(i);
+    i = i+i+1;
+  }
+}

@@ -1,0 +1,60 @@
+/*
+ * File: localopt-05
+ * Tests: intra-block copy propagation: multiple blocks in for loops
+ */
+
+extern void println(int n);
+
+void main(void) {
+  int i, u, v, w;
+
+  for (i = 0; i < 200; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  for (i = 0; i < 200; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  for (i = 0; i < 200; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  for (i = 0; i < 200; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  for (i = 0; i < 200; i = i+1) {
+    u = 1;
+    v = u;
+    w = v;
+    u = w;
+    v = u;
+    w = v;
+  }
+
+  println(u);
+  println(v);
+  println(w);
+}
+

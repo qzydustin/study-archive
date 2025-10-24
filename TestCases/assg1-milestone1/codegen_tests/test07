@@ -1,0 +1,18 @@
+/* a chain of assignments to locals + call to println() */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y, z, u;
+
+    x = 12345;
+    u = 98765;
+
+    y = x;
+    z = y;
+    println(z);
+
+    z = u;
+    y = z;
+    println(y);
+}

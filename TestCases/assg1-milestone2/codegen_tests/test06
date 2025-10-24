@@ -1,0 +1,14 @@
+/* assignment: int --> char conversion: locals */
+
+extern void println (int n);
+
+void main(void)
+{
+  int x;
+  char y;
+
+  x = 12345;
+  y = x;
+  println(y);
+}
+

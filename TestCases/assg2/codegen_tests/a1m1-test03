@@ -1,0 +1,19 @@
+/* a chain of function calls + call to println() */
+
+extern void println(int x);
+
+void h(void) {
+    println(12345);
+}
+
+void g(void) {
+    h();
+}
+
+void f(void) {
+    g();
+}
+
+void main(void) {
+    f();
+}

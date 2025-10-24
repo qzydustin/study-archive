@@ -1,0 +1,130 @@
+Question1: The cost and benefit of the optimization
+
+The five examples are c-- programs from internet.
+Each test file has two reports, in order they are without optimization, with optimization,.
+
+Register Allocation optimization significantly reduces runtime.
+I think the reason is that test cases contain a lot of calculations, so register optimization can save a lot of time.
+
+1. -87%
+real    0m0.124s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1692
+Stats -- #instructions : 280
+         #reads : 119  #writes 80  #branches 9  #other 72
+
+real    0m0.016s
+user    0m0.014s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1692
+Stats -- #instructions : 266
+         #reads : 47  #writes 18  #branches 9  #other 192
+
+2. -98%
+real    0m0.195s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1001
+10
+Stats -- #instructions : 26295
+         #reads : 9044  #writes 7893  #branches 2471  #other 6887
+
+real    0m0.003s
+user    0m0.002s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1001
+10
+Stats -- #instructions : 26295
+         #reads : 1070  #writes 1039  #branches 2471  #other 21715
+
+3. -97%
+real    0m0.205s
+user    0m0.002s
+sys     0m0.003s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+6
+Stats -- #instructions : 899
+         #reads : 243  #writes 212  #branches 51  #other 393
+
+real    0m0.007s
+user    0m0.005s
+sys     0m0.004s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+6
+Stats -- #instructions : 899
+         #reads : 109  #writes 108  #branches 51  #other 631
+
+4. -98%
+real    0m0.193s
+user    0m0.002s
+sys     0m0.003s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+6
+Stats -- #instructions : 876
+         #reads : 243  #writes 212  #branches 51  #other 370
+
+real    0m0.003s
+user    0m0.002s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+6
+Stats -- #instructions : 876
+         #reads : 109  #writes 108  #branches 51  #other 608
+
+5. -99%
+real    0m0.193s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+29
+Stats -- #instructions : 125
+         #reads : 24  #writes 22  #branches 9  #other 70
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+29
+Stats -- #instructions : 125
+         #reads : 19  #writes 17  #branches 9  #other 80
+
+
+Question2:
+
+1.
+without:
+real    0m0.004s
+user    0m0.001s
+sys     0m0.001s
+
+-Oregalloc:
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+
+-Olocal -Oregalloc:
+real    0m0.003s
+user    0m0.001s
+sys     0m0.001s
+
+-Oglobal -Oregalloc:
+real    0m0.003s
+user    0m0.001s
+sys     0m0.001s
+
+-Olocal -Oglobal -Oregalloc:
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+
+When both register optimization and local/global optimization are turned on, the effect is not as good as when only register optimization is turned on.
+I think it may be that the case I chose does not contain a lot of calculations.
+
+2.
+I tried Naive Register Allocation. The results are stored in memory after each calculation.
+All operations can be done with only two registers, but they are not efficient enough to pass the gradescope test.

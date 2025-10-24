@@ -1,0 +1,11 @@
+/* a function call + call to println() */
+
+extern void println(int x);
+
+void f(void) {
+    println(12345);
+}
+
+void main(void) {
+    f();
+}

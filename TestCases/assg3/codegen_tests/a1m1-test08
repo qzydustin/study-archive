@@ -1,0 +1,13 @@
+/* assigning to a global char variable */
+
+extern void println(int x);
+
+char x;
+
+void main(void) {
+    x = 1;
+    println(x);
+
+    x = 255;
+    println(x);    /* << this should print -1 */
+}

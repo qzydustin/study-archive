@@ -1,0 +1,41 @@
+/*
+ * File: globalopt-08
+ * Tests: dead code elimination involving nested loops containing IFs
+ *
+ * All the assignments to y are dead
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y, z;
+
+    for (x = 0; x < 10; x = x + 1) {
+        for (z = 0; z < 10; z = z + 1) {
+            y = 0;
+            if (x > 0) {
+                y = 2*y + 1;
+    	        y = 2*y + 1;
+    	    }
+	}
+
+        y = 2*y + 1;
+        y = 2*y + 1;
+        y = 2*y + 1;
+
+        for (z = 0; z < 10; z = z + 1) {
+            y = 0;
+            if (x > 0) {
+    	        y = 2*y - 1;
+    	        y = 2*y / 3;
+    	    }
+	}
+	
+        y = 2*y + 1;
+        y = 2*y + 1;
+        y = 2*y + 1;
+    }
+
+    println(x+z);  
+}
+

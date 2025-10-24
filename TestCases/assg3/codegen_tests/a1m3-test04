@@ -1,0 +1,29 @@
+/* several assignments to several global arrays */
+
+int x[10], y[10], z[10];
+
+extern void println (int n);
+
+void main(void)
+{
+  int u;
+
+  x[4] = 111111;
+  x[5] = 222222;
+  x[6] = 333333;
+  y[7] = 444444;
+  y[8] = 555555;
+  y[9] = 666666;
+  u = x[4];
+  println(u);
+  u = x[5];
+  println(u);
+  u = x[6];
+  println(u);
+  u = y[7];
+  println(u);
+  u = y[8];
+  println(u);
+  u = y[9];
+  println(u);
+}

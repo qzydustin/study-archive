@@ -1,0 +1,55 @@
+/*
+ * File: localopt-02
+ * Tests: intra-block copy propagation: a single basic block
+ *        mixed globals and locals
+ */
+
+extern void println(int n);
+
+int u, w;
+
+void main(void) {
+  int v;
+  
+  u = 1;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+  u = w;
+  v = u;
+  w = v;
+
+  println(u);
+  println(v);
+  println(w);
+}
+
