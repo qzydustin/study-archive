@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block css %}
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'form.css' %}" />
+{% endblock css %}
+{% block content %}
+    <div class="form-container">
+        <h2>Update a task</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_div }}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+{% endblock content %}
