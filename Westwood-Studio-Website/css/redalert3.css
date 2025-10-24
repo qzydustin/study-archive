@@ -1,0 +1,46 @@
+.main {
+    width: 45%;
+    border: 2px solid green;
+    margin: 20px auto;
+    padding: 30px;
+}
+.video{
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+}
+.main audio {
+    float: right;
+}
+
+.video iframe{
+    border: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.main a {
+    color: green;
+    font-size: xx-large;
+}
+
+.main a:hover {
+    color: white;
+}
+
+.main img {
+    float: right;
+    width: 45%;
+    margin: 25px;
+}
+
+@media screen and (max-width: 800px) {
+    .main {
+        display: block;
+        width: 90%;
+    }
+
+}

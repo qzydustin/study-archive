@@ -1,0 +1,33 @@
+.main {
+    width: 45%;
+    border: 2px solid green;
+    margin: 20px auto;
+    padding: 30px;
+}
+
+.main audio {
+    float: right;
+}
+
+.main a {
+    color: green;
+    font-size: xx-large;
+}
+
+.main a:hover {
+    color: white;
+}
+
+.main img {
+    float: left;
+    width: 45%;
+    margin: 25px;
+}
+
+@media screen and (max-width: 800px) {
+    .main {
+        display: block;
+        width: 90%;
+    }
+
+}
