@@ -1,4 +1,4 @@
-# UA-Network-Login
+# UA-Network-Autoauth
 
 A Python script designed to automate the login process for the University of Arizona's campus network, particularly for embedded devices. This script bypasses the need for a browser-based login by directly submitting the required credentials to the portal.
 
@@ -53,7 +53,3 @@ This command will automatically log you into the University of Arizona's campus 
 
 - If the script does not work or you encounter connection issues, ensure that your device is connected to the campus network.
 - Ensure that your credentials are correct.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
