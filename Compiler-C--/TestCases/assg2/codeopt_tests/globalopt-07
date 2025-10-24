@@ -1,0 +1,30 @@
+/*
+ * File: globalopt-07
+ * Tests: dead code elimination involving loops containing IFs
+ *
+ * All the assignments to y are dead
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y;
+
+    for (x = 0; x < 1000; x = x + 1) {
+        y = 0;
+        if (x > 0) {
+            y = 2*y + 1;
+	    y = 2*y + 1;
+	}
+	else {
+	    y = 2*y - 1;
+	    y = 2*y / 3;
+	}
+        y = 2*y + 1;
+        y = 2*y + 1;
+        y = 2*y + 1;
+    }
+
+    println(x);  
+}
+

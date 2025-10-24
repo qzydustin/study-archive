@@ -1,0 +1,14 @@
+/* argument passing: local char variable to argument of type char */
+
+extern void println(int x);
+
+void f(char x) {
+    println(x);
+}
+
+void main(void) {
+    char x;
+
+    x = '\n';
+    f(x);
+}

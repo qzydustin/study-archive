@@ -1,0 +1,39 @@
+/*
+ * regalloc-08: register allocation for a few variables in a single basic block.
+ *
+ * This program tests correctness of register allocation across a function call
+ * where the callee also uses many registers.
+ */
+
+extern void println(int x);
+
+int f(int n) {
+  int u01, u02, u03, u04, u05, u06, u07, u08;
+  u01 = n + 1;
+  u02 = u01 + 1;
+  u03 = u02 + 1;
+  u04 = u03 + 1;
+  u05 = u04 + u03;
+  u06 = u05 + u02;
+  u07 = u06 + u01;
+  u08 = u07 + n;
+  println(u08);
+  return u08;
+}
+
+void main(void) {
+  int x01, x02, x03, x04, x05, x06, x07, x08;
+
+  x01 = 1;
+  x02 = x01 + 1;
+  x03 = x02 + x01;
+  x04 = x03 + x02;
+  x05 = x04 + x03;
+  x06 = x05 + x04;
+
+  x07 = f(x06);
+
+  x08 = x01 + x02 + x03 + x04 + x05 + x06 + x07;
+
+  println(x08);  
+}

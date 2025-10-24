@@ -1,0 +1,40 @@
+/*
+ * File: localopt-07
+ * Tests: intra-block copy propagation: FOR, IF, and WHILE statements 
+ * mixed globals and locals
+ */
+
+extern void println(int n);
+
+int u, w;
+
+void f(void) {
+  int v, j;
+  char i;
+
+  for (i = 0; i < 100; i = i + 1) {
+    j = 0;
+    while (j < i) {
+      u = 1;
+      v = u;
+      w = v;
+      if (w == u) {
+        u = w;
+        v = u;
+        w = v;
+      }
+      j = j + 1;
+      u = w;
+      v = u;
+      w = v;
+    }
+  }
+}
+
+void main(void) {
+  f();
+
+  println(u);
+  println(w);
+}
+

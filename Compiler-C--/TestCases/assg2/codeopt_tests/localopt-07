@@ -1,0 +1,36 @@
+/*
+ * File: localopt-07
+ * Tests: intra-block copy propagation: nested FOR statements
+ * mixed globals and locals
+ */
+
+extern void println(int n);
+
+int u, w;
+
+void f(void) {
+  int v, j;
+  char i;
+
+  for (i = 0; i < 100; i = i + 1) {
+    for (j = 0; j < i; j = j + 1) {
+      u = 1;
+      v = u;
+      w = v;
+      u = w;
+      v = u;
+      w = v;
+      u = w;
+      v = u;
+      w = v;
+    }
+  }
+}
+
+void main(void) {
+  f();
+
+  println(u);
+  println(w);
+}
+

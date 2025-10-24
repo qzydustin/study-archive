@@ -1,0 +1,12 @@
+/* a chain of assignments to globals + call to println() */
+
+extern void println(int x);
+
+int x, y, z;
+
+void main(void) {
+    x = 12345;
+    y = x;
+    z = y;
+    println(z);
+}

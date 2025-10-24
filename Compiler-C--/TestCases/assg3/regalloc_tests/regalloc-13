@@ -1,0 +1,39 @@
+/*
+ * regalloc-13: register allocation and function calls
+ *
+ * This program tests correctness of register allocation for frequently referenced
+ * function arguments
+ */
+
+extern void println(int x);
+
+int g(int m, int n) {
+    int i, j, k, x;
+
+    /* lots of references to m and n, which are passed on the stack:
+       will they be put into registers? */
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+    n = m+1; m = n+1;
+
+    x = n+m;
+    for (i = 0; i < 10; i = i+1) {
+        for (j = 0; j < 10; j = j+1) {
+            for (k = 0; k < 10; k = k+1) {
+	        x = x+1;
+	    }
+	}
+    }
+
+    return x;
+}
+
+
+void main(void) {
+    int x;
+    
+    x = g(1,1);
+    println(x);
+}

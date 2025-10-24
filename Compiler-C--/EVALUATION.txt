@@ -1,0 +1,210 @@
+Question1: The cost and benefit of the optimization
+
+The five examples are localopt-01, localopt-03, localopt-07, globalopt-01, globalopt-07 from gradescope.
+Each test file has four reports, in order they are without optimization, with local optimization, with global optimization, with local and global optimization.
+
+Only globalopt-7 test significantly increases a bit time in global optimizations. Another test almost keep the same time. The subtle time difference I think is the inaccuracies of the test.
+
+
+localopt-01:
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+1
+Stats -- #instructions : 206
+         #reads : 45  #writes 42  #branches 9  #other 110
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+1
+Stats -- #instructions : 170 (-18%)
+         #reads : 8  #writes 42  #branches 9  #other 111
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+1
+Stats -- #instructions : 206 (-0%)
+         #reads : 45  #writes 42  #branches 9  #other 110
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+1
+Stats -- #instructions : 168 (-19%)
+         #reads : 8  #writes 41  #branches 9  #other 110
+
+
+localopt-03:
+
+real    0m0.004s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 1767
+         #reads : 487  #writes 464  #branches 87  #other 729
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 1647 (-7%)
+         #reads : 307  #writes 464  #branches 87  #other 789
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 1707 (-3%)
+         #reads : 467  #writes 444  #branches 87  #other 709
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 1347 (-24%)
+         #reads : 247  #writes 364  #branches 87  #other 649
+
+
+localopt-07:
+
+real    0m0.004s
+user    0m0.001s
+sys     0m0.003s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 220270
+         #reads : 70112  #writes 64959  #branches 10311  #other 74888
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 195419 (-12%)
+         #reads : 20311  #writes 64959  #branches 10210  #other 99939
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 220270 (-0%)
+         #reads : 70112  #writes 64959  #branches 10311  #other 74888
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+1
+1
+Stats -- #instructions : 145317 (-34%)
+         #reads : 20311  #writes 39908  #branches 10210  #other 74888
+
+
+globalopt-01:
+
+real    0m0.004s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+12
+Stats -- #instructions : 135
+         #reads : 56  #writes 55  #branches 5  #other 19
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.001s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+12
+Stats -- #instructions : 135 (-0%)
+         #reads : 4  #writes 55  #branches 5  #other 71
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+12
+Stats -- #instructions : 35 (-74%)
+         #reads : 6  #writes 5  #branches 5  #other 19
+
+real    0m0.003s
+user    0m0.001s
+sys     0m0.002s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+12
+Stats -- #instructions : 31 (-76%)
+         #reads : 4  #writes 3  #branches 5  #other 19
+
+globalopt-05:
+
+real    0m0.007s
+user    0m0.003s
+sys     0m0.005s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+32
+Stats -- #instructions : 579
+         #reads : 207  #writes 167  #branches 45  #other 160
+
+real    0m0.005s
+user    0m0.002s
+sys     0m0.003s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+32
+Stats -- #instructions : 579 (-0%)
+         #reads : 144  #writes 167  #branches 45  #other 223
+
+real    0m0.049s
+user    0m0.045s
+sys     0m0.004s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+32
+Stats -- #instructions : 335 (-42%)
+         #reads : 106  #writes 85  #branches 45  #other 99
+
+real    0m0.028s
+user    0m0.024s
+sys     0m0.003s
+Loaded: /Users/qzydustin/WorkSpace/Compiler-C--//spim-stats/share/exceptions.s
+32
+Stats -- #instructions : 253 (-56%)
+         #reads : 64  #writes 44  #branches 45  #other 100
+
+
+Question2: The peephole optimization patterns you used, how you came up with those patterns, and their impact on the number and type of instructions executed
+
+In peephole optimizations, first I improve the control flow, using exchange the destination and flipping the if condition, to decrease the number of jump instructions in IF.
+
+Second, I remove some useless calculations, such as +0, -0, /1, *1. And simplify calculations, such as ?*0, 0/?.
+
+Question3: Interactions between local and global optimizations when both -Olocal and -Oglobal are specified. In this scenario, does the order in which they are specified make a difference to code quality? Does executing them multiple times make a difference? Why or why not
+
+
+Yes, it is. The order affects the effect of optimization.  In local optimization, I remove some useless instructions (I describe them in question 2). These instructions will affect the judgment of variable liveness in the global optimizations.
+
+If it is executed multiple time, the order will not affect the effect. Neither local nor global optimization will make the results worse. Multiple optimizations will eventually make the num of instructions converge.

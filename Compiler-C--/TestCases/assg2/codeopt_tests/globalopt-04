@@ -1,0 +1,33 @@
+/*
+ * File: globalopt-04
+ * Tests: dead code elimination involving arithmetic expressions and across
+ * multiple basic blocks
+ *
+ * All the assignments to y are dead
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y;
+    x = 12;
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+
+    if (x > 0) {
+        y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+        y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+        y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+        y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+
+        x = x + x*2;    /* this should not get optimized away */
+    }
+    
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;
+    y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2; y = x+y*2;  
+
+    println(x);  
+}
+

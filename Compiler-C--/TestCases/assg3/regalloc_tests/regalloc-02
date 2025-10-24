@@ -1,0 +1,29 @@
+/*
+ * regalloc-02: register allocation for a few variables in multiple basic blocks.
+ */
+
+extern void println(int x);
+
+void main(void) {
+  int x01, x02;
+
+  x01 = 1;
+  x02 = x01 + x01 + x01 + x01;
+  
+  if (x02 > x01) {
+      x02 = x02 + x02;
+      x01 = x01 + x01;
+      x02 = x01 + x02;
+  }
+  else {
+      x02 = x02 - x01;
+      x01 = x01 - x02;
+      x02 = x02 - x01;
+  }
+
+  x01 = x01 * x01;
+  x02 = x02 * x01 + x02/x01;
+      
+
+  println(x02);
+}

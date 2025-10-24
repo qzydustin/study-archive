@@ -1,0 +1,22 @@
+/* argument passing chain: global int variable to argument of type int */
+
+extern void println(int x);
+
+int x;
+
+void h(int w) {
+    println(w);
+}
+
+void g(int u) {
+    h(u);
+}
+
+void f(int v) {
+    g(v);
+}
+
+void main(void) {
+    x = 12345;
+    f(x);
+}

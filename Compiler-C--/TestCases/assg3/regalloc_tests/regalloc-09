@@ -1,0 +1,23 @@
+/*
+ * regalloc-09: register allocation for variables in a function
+ *
+ * This program tests spill cost estimation heuristics.
+ */
+
+extern void println(int x);
+
+void main(void) {
+  int x01, x02, x03, x04, x05, x06, x07, x08;
+
+  x01 = 1;
+  x02 = x01 + x01;
+  x03 = x02 + x01 + x01;
+  x04 = x03 + x03 + x03 + x01 + x01 + x01;
+  x05 = x04 + x03 + x02 + x02 + x01 + x01 + x01 + x01;
+  x06 = x05 + x04 + x03 + x02 + x02 + x01 + x01 + x01 + x01;
+  x07 = x06 + x05 + x04 + x03 + x02 + x02 + x01 + x01 + x01 + x01;
+  x08 = x07 + x06 + x05 + x04 + x03 + x02 + x02 + x01 + x01 + x01 + x01;
+
+  println(x08);
+  println(x01);
+}

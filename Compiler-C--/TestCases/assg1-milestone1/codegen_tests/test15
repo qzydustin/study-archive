@@ -1,0 +1,11 @@
+/* argument passing: integer constant to argument of type int */
+
+extern void println(int x);
+
+void f(int x) {
+    println(x);
+}
+
+void main(void) {
+    f(12345);
+}

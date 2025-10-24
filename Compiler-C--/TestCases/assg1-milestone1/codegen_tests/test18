@@ -1,0 +1,14 @@
+/* argument passing: local int variable to argument of type int */
+
+extern void println(int x);
+
+void f(int x) {
+    println(x);
+}
+
+void main(void) {
+    int x;
+
+    x = 12345;
+    f(x);
+}

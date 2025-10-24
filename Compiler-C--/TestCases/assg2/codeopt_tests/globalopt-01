@@ -1,0 +1,27 @@
+/*
+ * File: globalopt-01
+ * Tests: dead code elimination in a single basic block
+ *
+ * All the assignments to y are dead
+ *
+ */
+
+extern void println(int x);
+
+void main(void) {
+    int x, y;
+    x = 12;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;
+    y = x; y = x; y = x; y = x; y = x;  
+
+    println(x);  
+}
+

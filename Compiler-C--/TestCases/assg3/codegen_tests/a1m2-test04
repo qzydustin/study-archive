@@ -1,0 +1,13 @@
+/* assignment: int --> char conversion: globals */
+
+char x;
+int y;
+
+extern void println (int n);
+
+void main(void)
+{
+  x = 255;
+  y = x;
+  println(y);
+}

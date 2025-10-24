@@ -1,0 +1,12 @@
+/* a chain of assignments to global char variables */
+
+extern void println(int x);
+
+char x, y, z;
+
+void main(void) {
+    x = 17;
+    y = x;
+    z = y;
+    println(z);
+}

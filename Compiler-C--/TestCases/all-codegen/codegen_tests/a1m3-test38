@@ -1,0 +1,18 @@
+/* function calls: int --> char return value conversion */
+
+int x;
+
+char f(int x)
+{
+  return x+12345;
+}
+
+extern void println (int n);
+
+void main(void)
+{
+  x = 12345;
+  x = f(x);
+  x = x+f(x);
+  println(x);
+}

@@ -1,0 +1,21 @@
+/* global and local variables with the same name */
+
+extern void println(int x);
+
+int x;
+
+void g(int x) {
+    println(x);
+    x = 0;
+}
+
+void f(int x) {
+    x = 27;
+    g(x);
+}
+
+void main(void) {
+    x = 93;
+    f(x);
+    g(x);
+}

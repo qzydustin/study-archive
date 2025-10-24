@@ -1,0 +1,15 @@
+/* assignment: int --> char conversion: global var -> local var */
+
+int x;
+
+extern void println (int n);
+
+void main(void)
+{
+  char y;
+
+  x = 12345;
+  y = x;
+  println(x);
+  println(y);
+}

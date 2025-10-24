@@ -1,0 +1,15 @@
+/* assignments to a number of global scalars */
+
+int x, y, z;
+
+extern void println (int n); 
+
+void main(void)
+{
+  x = 13579;
+  y = 24680;
+  z = 21436;
+  println(x);
+  println(y);
+  println(z);
+}
